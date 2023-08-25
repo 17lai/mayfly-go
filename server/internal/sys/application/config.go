@@ -10,14 +10,14 @@ import (
 	"mayfly-go/pkg/utils/jsonx"
 )
 
-const SysConfigKeyPrefix = "sys:config:"
+const SysConfigKeyPrefix = "mayfly:sys:config:"
 
 type Config interface {
 	GetPageList(condition *entity.Config, pageParam *model.PageParam, toEntity any, orderBy ...string) *model.PageResult[any]
 
 	Save(config *entity.Config)
 
-	// 获取指定key的配置信息, 不会返回nil, 若不存在则值都默认值即空字符串
+	// GetConfig 获取指定key的配置信息, 不会返回nil, 若不存在则值都默认值即空字符串
 	GetConfig(key string) *entity.Config
 }
 

@@ -74,8 +74,8 @@ function build() {
     # fi
 
     if [ "${copyDocScript}" == "1" ] ; then
-        echo_green "拷贝脚本等资源文件[config.yml、mayfly-go.sql、readme.txt、startup.sh、shutdown.sh]"
-        cp ${server_folder}/config.yml ${toFolder}
+        echo_green "拷贝脚本等资源文件[config.yml.example、mayfly-go.sql、readme.txt、startup.sh、shutdown.sh]"
+        cp ${server_folder}/config.yml.example ${toFolder}
         cp ${server_folder}/mayfly-go.sql ${toFolder}
         cp ${server_folder}/readme.txt ${toFolder}
         cp ${server_folder}/startup.sh ${toFolder}
@@ -104,9 +104,8 @@ function buildMac() {
 function buildDocker() {
     echo_yellow "-------------------构建docker镜像开始-------------------"
     imageVersion=$1
-    cd ${server_folder}
     imageName="mayflygo/mayfly-go:${imageVersion}"
-    docker build -t "${imageName}" .
+    docker build --platform linux/amd64 -t "${imageName}" .
     echo_green "docker镜像构建完成->[${imageName}]"
     echo_yellow "-------------------构建docker镜像结束-------------------"
 }
@@ -114,7 +113,6 @@ function buildDocker() {
 function buildxDocker() {
     echo_yellow "-------------------docker buildx构建镜像开始-------------------"
     imageVersion=$1
-    cd ${server_folder}
     imageName="ccr.ccs.tencentyun.com/mayfly/mayfly-go:${imageVersion}"
     docker buildx build --push --platform linux/amd64,linux/arm64 -t "${imageName}" .
     echo_green "docker多版本镜像构建完成->[${imageName}]"
@@ -147,6 +145,11 @@ function runBuild() {
         # 进入目标路径,并赋值全路径
         cd ${toPath}
         toPath=`pwd`
+
+        # read -p "是否构建前端[0|其他->否 1->是 2->构建并拷贝至server/static/static]: " runBuildWeb
+        runBuildWeb="2"
+        # 编译web前端
+        buildWeb ${runBuildWeb}
     fi
 
     if [[ "${buildType}" == "5" ]] || [[ "${buildType}" == "6" ]] ; then
@@ -156,12 +159,6 @@ function runBuild() {
             imageVersion="latest"
         fi
     fi
-
-
-    # read -p "是否构建前端[0|其他->否 1->是 2->构建并拷贝至server/static/static]: " runBuildWeb
-    runBuildWeb="2"
-    # 编译web前端
-    buildWeb ${runBuildWeb}
 
     case ${buildType} in
          "1")
@@ -190,11 +187,13 @@ function runBuild() {
         ;;
     esac
 
-    echo_green "删除['${server_folder}/static/static']下静态资源文件."
-    # 删除静态资源文件，保留一个favicon.ico，否则后端启动会报错
-    rm -rf ${server_folder}/static/static/assets
-    rm -rf ${server_folder}/static/static/config.js
-    rm -rf ${server_folder}/static/static/index.html
+    if [[ "${buildType}" != "5" ]] && [[ "${buildType}" != "6" ]] ; then
+        echo_green "删除['${server_folder}/static/static']下静态资源文件."
+        # 删除静态资源文件，保留一个favicon.ico，否则后端启动会报错
+        rm -rf ${server_folder}/static/static/assets
+        rm -rf ${server_folder}/static/static/config.js
+        rm -rf ${server_folder}/static/static/index.html
+    fi
 }
 
 runBuild

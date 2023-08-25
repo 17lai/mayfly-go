@@ -17,11 +17,11 @@
                                 </el-col>
                                 <el-col :span="24">
                                     <el-row>
-                                        <el-col :xs="24" :sm="8" class="personal-item mb6">
+                                        <el-col :xs="24" :sm="12" class="personal-item mb6">
                                             <div class="personal-item-label">用户名：</div>
                                             <div class="personal-item-value">{{ userInfo.username }}</div>
                                         </el-col>
-                                        <el-col :xs="24" :sm="16" class="personal-item mb6">
+                                        <el-col :xs="24" :sm="12" class="personal-item mb6">
                                             <div class="personal-item-label">角色：</div>
                                             <div class="personal-item-value">{{ roleInfo }}</div>
                                         </el-col>
@@ -29,11 +29,11 @@
                                 </el-col>
                                 <el-col :span="24">
                                     <el-row>
-                                        <el-col :xs="24" :sm="8" class="personal-item mb6">
+                                        <el-col :xs="24" :sm="12" class="personal-item mb6">
                                             <div class="personal-item-label">上次登录IP：</div>
                                             <div class="personal-item-value">{{ userInfo.lastLoginIp }}</div>
                                         </el-col>
-                                        <el-col :xs="24" :sm="16" class="personal-item mb6">
+                                        <el-col :xs="24" :sm="12" class="personal-item mb6">
                                             <div class="personal-item-label">上次登录时间：</div>
                                             <div class="personal-item-value">{{ dateFormat(userInfo.lastLoginTime) }}</div>
                                         </el-col>
@@ -127,19 +127,22 @@
                         </el-row>
                     </el-form>
 
-                    <!-- <div class="personal-edit-title mb15">账号安全</div>
-                    <div class="personal-edit-safe-box">
-                        <div class="personal-edit-safe-item">
-                            <div class="personal-edit-safe-item-left">
-                                <div class="personal-edit-safe-item-left-label">账户密码</div>
-                                <div class="personal-edit-safe-item-left-value">当前密码强度：强</div>
-                            </div>
-                            <div class="personal-edit-safe-item-right">
-                                <el-button type="text">立即修改</el-button>
+                    <span v-show="authStatus.enable">
+                        <div class="personal-edit-title mb15">账号信息</div>
+                        <div class="personal-edit-safe-box">
+                            <div class="personal-edit-safe-item">
+                                <div class="personal-edit-safe-item-left">
+                                    <div class="personal-edit-safe-item-left-label">Oauth2</div>
+                                    <div class="personal-edit-safe-item-left-value">当前状态：{{ authStatus.bind ? '已绑定' : '未绑定' }}</div>
+                                </div>
+                                <div class="personal-edit-safe-item-right">
+                                    <el-button v-if="!authStatus.bind" link @click="bindOAuth2" type="primary">立即绑定</el-button>
+                                    <el-button v-else link @click="unbindOAuth2()" type="warning">解绑</el-button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="personal-edit-safe-box">
+                    </span>
+                    <!-- <div class="personal-edit-safe-box">
                         <div class="personal-edit-safe-item">
                             <div class="personal-edit-safe-item-left">
                                 <div class="personal-edit-safe-item-left-label">密保手机</div>
@@ -160,17 +163,6 @@
                                 <el-button type="text">立即设置</el-button>
                             </div>
                         </div>
-                    </div>
-                    <div class="personal-edit-safe-box">
-                        <div class="personal-edit-safe-item">
-                            <div class="personal-edit-safe-item-left">
-                                <div class="personal-edit-safe-item-left-label">绑定QQ</div>
-                                <div class="personal-edit-safe-item-left-value">已绑定QQ：110****566</div>
-                            </div>
-                            <div class="personal-edit-safe-item-right">
-                                <el-button type="text">立即设置</el-button>
-                            </div>
-                        </div>
                     </div> -->
                 </el-card>
             </el-col>
@@ -186,6 +178,8 @@ import { personApi } from './api';
 import { dateFormat } from '@/common/utils/date';
 import { storeToRefs } from 'pinia';
 import { useUserInfo } from '@/store/userInfo';
+import config from '@/common/config';
+import { getSession } from '@/common/utils/storage';
 
 const { userInfo } = storeToRefs(useUserInfo());
 const state = reactive({
@@ -208,9 +202,13 @@ const state = reactive({
     accountForm: {
         password: '',
     },
+    authStatus: {
+        enable: false,
+        bind: false,
+    },
 });
 
-const { msgDialog, accountForm } = toRefs(state);
+const { msgDialog, accountForm, authStatus } = toRefs(state);
 
 // 当前时间提示语
 const currentTime = computed(() => {
@@ -228,9 +226,10 @@ const roleInfo = computed(() => {
     return state.accountInfo.roles.map((val: any) => val.name).join('、');
 });
 
-onMounted(() => {
+onMounted(async () => {
     getAccountInfo();
     getMsgs();
+    state.authStatus = await personApi.authStatus.request();
 });
 
 const getAccountInfo = async () => {
@@ -240,6 +239,43 @@ const getAccountInfo = async () => {
 const updateAccount = async () => {
     await personApi.updateAccount.request(state.accountForm);
     ElMessage.success('更新成功');
+};
+
+const bindOAuth2 = () => {
+    const width = 700;
+    const height = 500;
+    var iTop = (window.screen.height - 30 - height) / 2; //获得窗口的垂直位置;
+    var iLeft = (window.screen.width - 10 - width) / 2; //获得窗口的水平位置;
+    // 小窗口打开oauth2鉴权
+    let oauthWindow = window.open(
+        config.baseApiUrl + '/auth/oauth2/bind?token=' + getSession('token'),
+        'oauth2',
+        `height=${height},width=${width},top=${iTop},left=${iLeft},location=no`
+    );
+    if (oauthWindow) {
+        const handler = (e: any) => {
+            if (e.data.action === 'oauthBind') {
+                window.removeEventListener('message', handler);
+                // 处理登录token
+                ElMessage.success('绑定成功');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        };
+        window.addEventListener('message', handler);
+        setInterval(() => {
+            if (oauthWindow!.closed) {
+                window.removeEventListener('message', handler);
+            }
+        }, 1000);
+    }
+};
+
+const unbindOAuth2 = async () => {
+    await personApi.unbindOauth2.request();
+    ElMessage.success('解绑成功');
+    state.authStatus = await personApi.authStatus.request();
 };
 
 const getMsgs = async () => {
