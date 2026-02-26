@@ -1,6 +1,6 @@
 --MSSQL_DBS 数据库名信息
 SELECT name AS dbname
-FROM sys.databases
+FROM sys.databases WHERE state = 0
 ---------------------------------------
 --MSSQL_TABLE_DETAIL 查询表名和表注释
 SELECT t.name   AS tableName,
