@@ -5,8 +5,6 @@ import (
 	sysapp "mayfly-go/internal/sys/application"
 	"mayfly-go/pkg/logx"
 	"mayfly-go/pkg/utils/bytex"
-
-	"github.com/spf13/cast"
 )
 
 const (
@@ -24,12 +22,12 @@ type Machine struct {
 // 获取机器相关配置
 func GetMachine() *Machine {
 	c := sysapp.GetConfigApp().GetConfig(ConfigKeyMachine)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 
 	mc := new(Machine)
 
 	// 将1GB等字符串转为int64的byte
-	uploadMaxFileSizeStr := jm["uploadMaxFileSize"]
+	uploadMaxFileSizeStr := jm.GetStr("uploadMaxFileSize")
 	var uploadMaxFileSize int64 = 1 * bytex.GB
 	if uploadMaxFileSizeStr != "" {
 		var err error
@@ -39,11 +37,11 @@ func GetMachine() *Machine {
 		}
 	}
 	mc.UploadMaxFileSize = uploadMaxFileSize
-	mc.TermOpSaveDays = cmp.Or(cast.ToInt(jm["termOpSaveDays"]), 30)
+	mc.TermOpSaveDays = cmp.Or(jm.GetInt("termOpSaveDays"), 30)
 	// guacd
-	mc.GuacdHost = cast.ToString(jm["guacdHost"])
-	mc.GuacdPort = cmp.Or(cast.ToInt(jm["guacdPort"]), 4822)
-	mc.GuacdFilePath = cast.ToString(jm["guacdFilePath"])
+	mc.GuacdHost = jm.GetStr("guacdHost")
+	mc.GuacdPort = cmp.Or(jm.GetInt("guacdPort"), 4822)
+	mc.GuacdFilePath = jm.GetStr("guacdFilePath")
 
 	return mc
 }

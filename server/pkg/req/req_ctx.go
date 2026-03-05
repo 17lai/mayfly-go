@@ -112,7 +112,7 @@ func (rc *Ctx) res() {
 			rc.JSONRes(http.StatusOK, model.Error(t))
 		default:
 			logx.ErrorTrace("server error", t)
-			rc.JSONRes(http.StatusOK, model.ServerError(fmt.Sprintf("server error [%d-%s]", errorx.ServerError.Code(), cmp.Or(contextx.GetTraceId(rc.MetaCtx), "none"))))
+			rc.JSONRes(http.StatusOK, model.ServerError(fmt.Sprintf("server error [%d-%s]", errorx.ErrServer.Code(), cmp.Or(contextx.GetTraceId(rc.MetaCtx), "none"))))
 		}
 		return
 	}

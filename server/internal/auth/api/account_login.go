@@ -139,7 +139,7 @@ func (a *AccountLogin) RefreshToken(rc *req.Ctx) {
 	biz.NotEmpty(refreshToken, "refresh_token cannot be empty")
 
 	accountId, username, err := req.ParseToken(refreshToken)
-	biz.IsTrueBy(err == nil, errorx.PermissionErr)
+	biz.IsTrueBy(err == nil, errorx.ErrPermission)
 
 	token, refreshToken, err := req.CreateToken(accountId, username)
 	biz.ErrIsNil(err)

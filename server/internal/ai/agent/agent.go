@@ -3,7 +3,7 @@ package agent
 import (
 	"context"
 	"mayfly-go/internal/ai/config"
-	aimodel "mayfly-go/internal/ai/model"
+	"mayfly-go/internal/ai/protocol"
 	"mayfly-go/pkg/logx"
 
 	"github.com/cloudwego/eino/adk"
@@ -12,8 +12,8 @@ import (
 )
 
 // GetAgent 获取AI Agent
-func GetAgent(ctx context.Context, aiConfig *config.AIModelConfig, tools ...tool.BaseTool) (adk.Agent, error) {
-	toolableChatModel, err := aimodel.GetChatModel(ctx, aiConfig)
+func GetAgent(ctx context.Context, modelConfig *config.ModelConfig, tools ...tool.BaseTool) (adk.Agent, error) {
+	toolableChatModel, err := protocol.GetChatModel(ctx, modelConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func GetOpsExpertAgent(ctx context.Context, toolTypes ...ToolType) (*AiAgent, er
 		}
 	}
 
-	agent, err := GetAgent(ctx, config.GetAiModel(), tools...)
+	agent, err := GetAgent(ctx, config.GetModel(), tools...)
 	if err != nil {
 		return nil, err
 	}

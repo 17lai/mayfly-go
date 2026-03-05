@@ -5,8 +5,6 @@ import (
 	sysapp "mayfly-go/internal/sys/application"
 	"path/filepath"
 	"runtime"
-
-	"github.com/spf13/cast"
 )
 
 const (
@@ -24,12 +22,12 @@ type Dbms struct {
 
 func GetDbms() *Dbms {
 	c := sysapp.GetConfigApp().GetConfig(ConfigKeyDbms)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 
 	dbmsConf := new(Dbms)
-	dbmsConf.QuerySqlSave = c.ConvBool(jm["querySqlSave"], false)
-	dbmsConf.MaxResultSet = cast.ToInt(jm["maxResultSet"])
-	dbmsConf.SqlExecTl = cmp.Or(cast.ToInt(jm["sqlExecTl"]), 60)
+	dbmsConf.QuerySqlSave = c.ConvBool(jm.GetStr("querySqlSave"), false)
+	dbmsConf.MaxResultSet = jm.GetInt("maxResultSet")
+	dbmsConf.SqlExecTl = cmp.Or(jm.GetInt("sqlExecTl"), 60)
 	return dbmsConf
 }
 
@@ -41,12 +39,12 @@ type DbBackupRestore struct {
 // 获取数据库备份配置
 func GetDbBackupRestore() *DbBackupRestore {
 	c := sysapp.GetConfigApp().GetConfig(ConfigKeyDbBackupRestore)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 
 	dbrc := new(DbBackupRestore)
 
-	dbrc.BackupPath = filepath.Join(cmp.Or(jm["backupPath"], "./db/backup"))
-	dbrc.TransferPath = filepath.Join(cmp.Or(jm["transferPath"], "./db/transfer"))
+	dbrc.BackupPath = filepath.Join(cmp.Or(jm.GetStr("backupPath"), "./db/backup"))
+	dbrc.TransferPath = filepath.Join(cmp.Or(jm.GetStr("transferPath"), "./db/transfer"))
 
 	return dbrc
 }
@@ -62,11 +60,11 @@ type MysqlBin struct {
 // 获取数据库备份配置
 func GetMysqlBin(configKey string) *MysqlBin {
 	c := sysapp.GetConfigApp().GetConfig(configKey)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 
 	mbc := new(MysqlBin)
 
-	path := jm["path"]
+	path := jm.GetStr("path")
 	if path == "" {
 		path = "./db/mysql/bin"
 	}
@@ -76,19 +74,19 @@ func GetMysqlBin(configKey string) *MysqlBin {
 	if runtime.GOOS == "windows" {
 		extName = ".exe"
 	}
-	mysqlPath := jm["mysql"]
+	mysqlPath := jm.GetStr("mysql")
 	if mysqlPath == "" {
 		mysqlPath = filepath.Join(path, "mysql"+extName)
 	}
 	mbc.MysqlPath = filepath.Join(mysqlPath)
 
-	mysqldumpPath := jm["mysqldump"]
+	mysqldumpPath := jm.GetStr("mysqldump")
 	if mysqldumpPath == "" {
 		mysqldumpPath = filepath.Join(path, "mysqldump"+extName)
 	}
 	mbc.MysqldumpPath = filepath.Join(mysqldumpPath)
 
-	mysqlbinlogPath := jm["mysqlbinlog"]
+	mysqlbinlogPath := jm.GetStr("mysqlbinlog")
 	if mysqlbinlogPath == "" {
 		mysqlbinlogPath = filepath.Join(path, "mysqlbinlog"+extName)
 	}

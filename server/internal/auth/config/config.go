@@ -4,8 +4,6 @@ import (
 	"cmp"
 	sysapp "mayfly-go/internal/sys/application"
 	"mayfly-go/pkg/utils/stringx"
-
-	"github.com/spf13/cast"
 )
 
 const (
@@ -25,13 +23,13 @@ type AccountLoginSecurity struct {
 // 获取账号登录安全相关配置
 func GetAccountLoginSecurity() *AccountLoginSecurity {
 	c := sysapp.GetConfigApp().GetConfig(ConfigKeyAccountLoginSecurity)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 	als := new(AccountLoginSecurity)
-	als.UseCaptcha = c.ConvBool(jm["useCaptcha"], true)
-	als.UseOtp = c.ConvBool(jm["useOtp"], false)
-	als.LoginFailCount = cmp.Or(cast.ToInt(jm["loginFailCount"]), 5)
-	als.LoginFailMin = cmp.Or(cast.ToInt(jm["loginFailMin"]), 10)
-	otpIssuer := jm["otpIssuer"]
+	als.UseCaptcha = c.ConvBool(jm.GetStr("useCaptcha"), true)
+	als.UseOtp = c.ConvBool(jm.GetStr("useOtp"), false)
+	als.LoginFailCount = cmp.Or(jm.GetInt("loginFailCount"), 5)
+	als.LoginFailMin = cmp.Or(jm.GetInt("loginFailMin"), 10)
+	otpIssuer := jm.GetStr("otpIssuer")
 	if otpIssuer == "" {
 		otpIssuer = "mayfly-go"
 	}
@@ -56,19 +54,19 @@ type Oauth2Login struct {
 // 获取Oauth2登录相关配置
 func GetOauth2Login() *Oauth2Login {
 	c := sysapp.GetConfigApp().GetConfig(ConfigKeyOauth2Login)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 	ol := new(Oauth2Login)
-	ol.Enable = c.ConvBool(jm["enable"], false)
-	ol.Name = jm["name"]
-	ol.ClientId = jm["clientId"]
-	ol.ClientSecret = jm["clientSecret"]
-	ol.AuthorizationURL = jm["authorizationURL"]
-	ol.AccessTokenURL = jm["accessTokenURL"]
-	ol.RedirectURL = jm["redirectURL"]
-	ol.Scopes = stringx.Trim(jm["scopes"])
-	ol.ResourceURL = jm["resourceURL"]
-	ol.UserIdentifier = jm["userIdentifier"]
-	ol.AutoRegister = c.ConvBool(jm["autoRegister"], true)
+	ol.Enable = c.ConvBool(jm.GetStr("enable"), false)
+	ol.Name = jm.GetStr("name")
+	ol.ClientId = jm.GetStr("clientId")
+	ol.ClientSecret = jm.GetStr("clientSecret")
+	ol.AuthorizationURL = jm.GetStr("authorizationURL")
+	ol.AccessTokenURL = jm.GetStr("accessTokenURL")
+	ol.RedirectURL = jm.GetStr("redirectURL")
+	ol.Scopes = stringx.Trim(jm.GetStr("scopes"))
+	ol.ResourceURL = jm.GetStr("resourceURL")
+	ol.UserIdentifier = jm.GetStr("userIdentifier")
+	ol.AutoRegister = c.ConvBool(jm.GetStr("autoRegister"), true)
 	return ol
 }
 
@@ -90,19 +88,19 @@ type LdapLogin struct {
 // 获取LdapLogin相关配置
 func GetLdapLogin() *LdapLogin {
 	c := sysapp.GetConfigApp().GetConfig(ConfigKeyLdapLogin)
-	jm := c.GetJsonMap()
+	jm := c.GetJsonM()
 	ll := new(LdapLogin)
-	ll.Enable = c.ConvBool(jm["enable"], false)
-	ll.Host = jm["host"]
-	ll.Port = jm["port"]
-	ll.SkipTLSVerify = c.ConvBool(jm["skipTLSVerify"], true)
-	ll.SecurityProtocol = jm["securityProtocol"]
-	ll.BindDN = stringx.Trim(jm["bindDN"])
-	ll.BindPwd = stringx.Trim(jm["bindPwd"])
-	ll.BaseDN = stringx.Trim(jm["baseDN"])
-	ll.UserFilter = stringx.Trim(jm["userFilter"])
-	ll.UidMap = stringx.Trim(jm["uidMap"])
-	ll.UdnMap = stringx.Trim(jm["udnMap"])
-	ll.EmailMap = stringx.Trim(jm["emailMap"])
+	ll.Enable = c.ConvBool(jm.GetStr("enable"), false)
+	ll.Host = jm.GetStr("host")
+	ll.Port = jm.GetStr("port")
+	ll.SkipTLSVerify = c.ConvBool(jm.GetStr("skipTLSVerify"), true)
+	ll.SecurityProtocol = jm.GetStr("securityProtocol")
+	ll.BindDN = stringx.Trim(jm.GetStr("bindDN"))
+	ll.BindPwd = stringx.Trim(jm.GetStr("bindPwd"))
+	ll.BaseDN = stringx.Trim(jm.GetStr("baseDN"))
+	ll.UserFilter = stringx.Trim(jm.GetStr("userFilter"))
+	ll.UidMap = stringx.Trim(jm.GetStr("uidMap"))
+	ll.UdnMap = stringx.Trim(jm.GetStr("udnMap"))
+	ll.EmailMap = stringx.Trim(jm.GetStr("emailMap"))
 	return ll
 }

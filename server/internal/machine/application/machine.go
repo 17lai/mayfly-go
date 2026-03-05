@@ -117,7 +117,6 @@ func (m *machineAppImpl) SaveMachine(ctx context.Context, param *dto.SaveMachine
 				ResourceType: resourceType,
 				AuthCerts:    authCerts,
 			})
-
 		}, func(ctx context.Context) error {
 			return m.tagApp.SaveResourceTag(ctx, &tagdto.SaveResourceTag{
 				ResourceTag:        m.genMachineResourceTag(me, authCerts),

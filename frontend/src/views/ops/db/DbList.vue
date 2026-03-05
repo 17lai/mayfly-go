@@ -81,24 +81,6 @@
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item :command="{ type: 'dumpDb', data }"> {{ $t('db.dump') }} </el-dropdown-item>
-                                <!-- <el-dropdown-item
-                                    :command="{ type: 'backupDb', data }"
-                                    v-if="actionBtns[perms.backupDb] && supportAction('backupDb', data.type)"
-                                >
-                                    备份任务
-                                </el-dropdown-item>
-                                <el-dropdown-item
-                                    :command="{ type: 'backupHistory', data }"
-                                    v-if="actionBtns[perms.backupDb] && supportAction('backupDb', data.type)"
-                                >
-                                    备份历史
-                                </el-dropdown-item>
-                                <el-dropdown-item
-                                    :command="{ type: 'restoreDb', data }"
-                                    v-if="actionBtns[perms.restoreDb] && supportAction('restoreDb', data.type)"
-                                >
-                                    恢复任务
-                                </el-dropdown-item> -->
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
@@ -139,10 +121,8 @@
             </el-form-item>
 
             <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="exportDialog.visible = false">{{ $t('common.cancel') }}</el-button>
-                    <el-button @click="dumpDbs()" type="primary">{{ $t('common.confirm') }}</el-button>
-                </div>
+                <el-button @click="exportDialog.visible = false">{{ $t('common.cancel') }}</el-button>
+                <el-button @click="dumpDbs()" type="primary">{{ $t('common.confirm') }}</el-button>
             </template>
         </el-dialog>
 
@@ -157,36 +137,6 @@
         >
             <db-sql-exec-log :db-id="sqlExecLogDialog.dbId" :dbs="sqlExecLogDialog.dbs" />
         </el-dialog>
-
-        <!-- <el-dialog
-            width="80%"
-            :title="`${dbBackupDialog.title} - 数据库备份`"
-            :close-on-click-modal="false"
-            :destroy-on-close="true"
-            v-model="dbBackupDialog.visible"
-        >
-            <db-backup-list :dbId="dbBackupDialog.dbId" :dbNames="dbBackupDialog.dbs" />
-        </el-dialog>
-
-        <el-dialog
-            width="80%"
-            :title="`${dbBackupHistoryDialog.title} - 数据库备份历史`"
-            :close-on-click-modal="false"
-            :destroy-on-close="true"
-            v-model="dbBackupHistoryDialog.visible"
-        >
-            <db-backup-history-list :dbId="dbBackupHistoryDialog.dbId" :dbNames="dbBackupHistoryDialog.dbs" />
-        </el-dialog>
-
-        <el-dialog
-            width="80%"
-            :title="`${dbRestoreDialog.title} - 数据库恢复`"
-            :close-on-click-modal="false"
-            :destroy-on-close="true"
-            v-model="dbRestoreDialog.visible"
-        >
-            <db-restore-list :dbId="dbRestoreDialog.dbId" :dbNames="dbRestoreDialog.dbs" />
-        </el-dialog> -->
 
         <db-edit
             @confirm="confirmEditDb"
@@ -258,6 +208,7 @@ const perms = {
 const actionBtns: any = hasPerms(Object.values(perms));
 
 const pageTableRef: Ref<any> = ref(null);
+
 const state = reactive({
     loadingDbNames: false,
     currentDbNames: [],
@@ -280,27 +231,6 @@ const state = reactive({
         title: '',
         visible: false,
         dbs: [] as any,
-        dbId: 0,
-    },
-    // 数据库备份弹框
-    dbBackupDialog: {
-        title: '',
-        visible: false,
-        dbs: [],
-        dbId: 0,
-    },
-    // 数据库备份历史弹框
-    dbBackupHistoryDialog: {
-        title: '',
-        visible: false,
-        dbs: [],
-        dbId: 0,
-    },
-    // 数据库恢复弹框
-    dbRestoreDialog: {
-        title: '',
-        visible: false,
-        dbs: [],
         dbId: 0,
     },
     chooseTableName: '',
@@ -329,7 +259,7 @@ const state = reactive({
     },
 });
 
-const { query, sqlExecLogDialog, exportDialog, dbEditDialog, dbBackupDialog, dbBackupHistoryDialog, dbRestoreDialog } = toRefs(state);
+const { query, sqlExecLogDialog, dbEditDialog, exportDialog } = toRefs(state);
 
 const search = async () => {
     state.query.instanceId = props.instance?.id;
@@ -407,18 +337,6 @@ const handleMoreActionCommand = (commond: any) => {
             onDumpDbs(data);
             return;
         }
-        case 'backupDb': {
-            onShowDbBackupDialog(data);
-            return;
-        }
-        case 'backupHistory': {
-            onShowDbBackupHistoryDialog(data);
-            return;
-        }
-        case 'restoreDb': {
-            onShowDbRestoreDialog(data);
-            return;
-        }
     }
 };
 
@@ -435,33 +353,6 @@ const onBeforeCloseSqlExecDialog = () => {
     state.sqlExecLogDialog.visible = false;
     state.sqlExecLogDialog.dbs = [];
     state.sqlExecLogDialog.dbId = 0;
-};
-
-const onShowDbBackupDialog = async (row: any) => {
-    state.dbBackupDialog.title = `${row.name}`;
-    state.dbBackupDialog.dbId = row.id;
-    DbInst.getDbNames(row).then((res) => {
-        state.sqlExecLogDialog.dbs = res;
-    });
-    state.dbBackupDialog.visible = true;
-};
-
-const onShowDbBackupHistoryDialog = async (row: any) => {
-    state.dbBackupHistoryDialog.title = `${row.name}`;
-    state.dbBackupHistoryDialog.dbId = row.id;
-    DbInst.getDbNames(row).then((res) => {
-        state.sqlExecLogDialog.dbs = res;
-    });
-    state.dbBackupHistoryDialog.visible = true;
-};
-
-const onShowDbRestoreDialog = async (row: any) => {
-    state.dbRestoreDialog.title = `${row.name}`;
-    state.dbRestoreDialog.dbId = row.id;
-    DbInst.getDbNames(row).then((res) => {
-        state.sqlExecLogDialog.dbs = res;
-    });
-    state.dbRestoreDialog.visible = true;
 };
 
 const onDumpDbs = async (row: any) => {

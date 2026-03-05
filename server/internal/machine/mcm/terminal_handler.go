@@ -3,11 +3,10 @@ package mcm
 import (
 	"bytes"
 	"fmt"
+	"mayfly-go/internal/machine/mcm/ansiterm"
 	"mayfly-go/pkg/errorx"
 	"strings"
 	"time"
-
-	"github.com/veops/go-ansiterm"
 )
 
 // 命令过滤函数，若返回error，则不执行该命令

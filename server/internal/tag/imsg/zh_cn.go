@@ -6,7 +6,6 @@ var Zh_CN = map[i18n.MsgId]string{
 	// tag
 	LogTagSave:   "标签树-保存信息",
 	LogTagDelete: "标签树-删除信息",
-	LogTagMove:   "标签树-移动标签",
 
 	ErrTagCodeInvalid:         "标识符不能包含'/'",
 	ErrNoAdminCreateTag:       "非管理员无法添加根标签",

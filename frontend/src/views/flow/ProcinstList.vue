@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRefs, reactive, Ref } from 'vue';
+import { ref, toRefs, reactive, Ref, defineAsyncComponent } from 'vue';
 import { procinstApi } from './api';
 import PageTable from '@/components/pagetable/PageTable.vue';
 import { TableColumn } from '@/components/pagetable';
@@ -62,10 +62,11 @@ import { FlowBizType, ProcinstBizStatus, ProcinstStatus } from './enums';
 import { formatTime } from '@/common/utils/format';
 import { useI18nDetailTitle, useI18nOperateSuccessMsg } from '@/hooks/useI18n';
 import { useI18n } from 'vue-i18n';
-import ProcinstEdit from '@/views/flow/ProcinstEdit.vue';
 import { useUserInfo } from '@/store/userInfo';
 
 const { t } = useI18n();
+
+const ProcinstEdit = defineAsyncComponent(() => import('@/views/flow/ProcinstEdit.vue'));
 
 const searchItems = [
     SearchItem.select('status', 'common.status').withEnum(ProcinstStatus),

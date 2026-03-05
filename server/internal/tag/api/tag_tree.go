@@ -32,8 +32,6 @@ func (t *TagTree) ReqConfs() *req.Confs {
 
 		req.NewDelete(":id", t.DelTagTree).Log(req.NewLogSaveI(imsg.LogTagDelete)).RequiredPermissionCode("tag:del"),
 
-		req.NewPost("/moving", t.MovingTag).Log(req.NewLogSaveI(imsg.LogTagMove)).RequiredPermissionCode("tag:save"),
-
 		req.NewGet("/resources/tag-paths", t.TagResources),
 
 		req.NewGet("/resources/count", t.CountTagResource),
@@ -49,7 +47,7 @@ func (p *TagTree) GetTagTree(rc *req.Ctx) {
 	tagTypesStr := rc.Query("type")
 	var typePaths []entity.TypePath
 	if tagTypesStr != "" {
-		typePaths = collx.ArrayMap[string, entity.TypePath](strings.Split(tagTypesStr, ","), func(val string) entity.TypePath {
+		typePaths = collx.ArrayMap(strings.Split(tagTypesStr, ","), func(val string) entity.TypePath {
 			return entity.TypePath(val)
 		})
 	}
@@ -130,19 +128,13 @@ func (p *TagTree) DelTagTree(rc *req.Ctx) {
 	biz.ErrIsNil(p.tagTreeApp.Delete(rc.MetaCtx, uint64(rc.PathParamInt("id"))))
 }
 
-func (p *TagTree) MovingTag(rc *req.Ctx) {
-	movingForm := req.BindJson[form.MovingTag](rc)
-	rc.ReqParam = movingForm
-	biz.ErrIsNil(p.tagTreeApp.MovingTag(rc.MetaCtx, movingForm.FromPath, movingForm.ToPath))
-}
-
 // 获取用户可操作的标签路径
 func (p *TagTree) TagResources(rc *req.Ctx) {
 	resourceType := rc.Query("resourceType")
 	biz.NotEmpty(resourceType, "resourceType cannot be empty")
 	tagResources := p.tagTreeApp.GetAccountTags(rc.GetLoginAccount().Id, &entity.TagTreeQuery{TypePaths: collx.AsArray(entity.TypePath(resourceType))})
 
-	tagPath2Resource := collx.ArrayToMap[*dto.SimpleTagTree, string](tagResources, func(tagResource *dto.SimpleTagTree) string {
+	tagPath2Resource := collx.ArrayToMap(tagResources, func(tagResource *dto.SimpleTagTree) string {
 		return string(entity.CodePath(tagResource.CodePath).GetTag())
 	})
 

@@ -14,7 +14,6 @@ const (
 	// tag
 	LogTagSave = iota + consts.ImsgNumTag
 	LogTagDelete
-	LogTagMove
 
 	ErrTagCodeInvalid
 	ErrNoAdminCreateTag

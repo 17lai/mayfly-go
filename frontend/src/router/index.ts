@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { getToken } from '@/common/utils/storage';
@@ -11,10 +11,18 @@ import { useThemeConfig } from '@/store/themeConfig';
 import { useUserInfo } from '@/store/userInfo';
 import { useRoutesList } from '@/store/routesList';
 import { initBackendRoutes } from './dynamicRouter';
+import { getAppConfig } from '@/common/config';
+
+// 根据环境变量获取路由模式
+const getRouterMode = () => {
+    const mode = import.meta.env.VITE_ROUTER_MODE || 'hash';
+    const appConfig = getAppConfig();
+    return mode === 'history' ? createWebHistory(appConfig?.CTX_PATH) : createWebHashHistory(appConfig?.CTX_PATH);
+};
 
 // 添加静态路由
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: getRouterMode(),
     routes: [...staticRoutes, ...errorRoutes],
 });
 

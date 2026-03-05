@@ -13,11 +13,12 @@ type BizError struct {
 }
 
 var (
-	Success            *BizError = NewBizCode(200, "success")
-	BizErr             *BizError = NewBizCode(400, "biz error")
-	ServerError        *BizError = NewBizCode(500, "server error")
-	PermissionErr      *BizError = NewBizCode(501, "token error")
-	AccessTokenInvalid *BizError = NewBizCode(502, "access token invalid")
+	Success *BizError = NewBizCode(200, "success")
+
+	ErrBiz          *BizError = NewBizCode(400, "biz error")
+	ErrServer       *BizError = NewBizCode(500, "server error")
+	ErrPermission   *BizError = NewBizCode(501, "token error")
+	ErrInvalidToken *BizError = NewBizCode(502, "access token invalid")
 )
 
 // 错误消息
@@ -36,7 +37,7 @@ func (e BizError) String() string {
 
 // NewBiz 创建业务逻辑错误结构体，默认为业务逻辑错误
 func NewBiz(msg string) *BizError {
-	return &BizError{code: BizErr.code, err: msg}
+	return &BizError{code: ErrBiz.code, err: msg}
 }
 
 // NewBizf 创建业务逻辑错误结构体，可设置格式化参数
@@ -49,7 +50,7 @@ func NewBizf(format string, formatValues ...any) *BizError {
 //	// NameErr =  {{.name}} is invalid  =>  xxx is invalid
 //	NewBizI(ctx, imsg.NameErr, "name", "xxxx")
 func NewBizI(ctx context.Context, msgId i18n.MsgId, attrs ...any) *BizError {
-	return &BizError{code: BizErr.code, err: i18n.TC(ctx, msgId, attrs...)}
+	return &BizError{code: ErrBiz.code, err: i18n.TC(ctx, msgId, attrs...)}
 }
 
 // NewBizCode 创建业务逻辑错误结构体，可设置指定错误code

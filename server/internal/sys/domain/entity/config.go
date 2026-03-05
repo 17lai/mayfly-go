@@ -2,8 +2,9 @@ package entity
 
 import (
 	"cmp"
-	"encoding/json"
 	"mayfly-go/pkg/model"
+	"mayfly-go/pkg/utils/collx"
+	"mayfly-go/pkg/utils/jsonx"
 
 	"github.com/spf13/cast"
 )
@@ -35,13 +36,12 @@ func (c *Config) BoolValue(defaultValue bool) bool {
 	return c.ConvBool(c.Value, defaultValue)
 }
 
-// 值返回json map
-func (c *Config) GetJsonMap() map[string]string {
-	var res map[string]string
+// GetJsonM 获取配置的json map值，如果配置不存在或值为空，则返回空map
+func (c *Config) GetJsonM() collx.M {
 	if c.Id == 0 || c.Value == "" {
-		return res
+		return collx.M{}
 	}
-	_ = json.Unmarshal([]byte(c.Value), &res)
+	res, _ := jsonx.ToMap(c.Value)
 	return res
 }
 

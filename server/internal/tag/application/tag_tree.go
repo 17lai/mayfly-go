@@ -40,9 +40,6 @@ type TagTree interface {
 	// ChangeParentTag 变更指定类型标签的父标签
 	ChangeParentTag(ctx context.Context, tagType entity.TagType, tagCode string, parentTagType entity.TagType, newParentCode string) error
 
-	// MovingTag 移动标签
-	MovingTag(ctx context.Context, fromTagPath string, toTagPath string) error
-
 	// DeleteTagByParam 删除标签，会删除该标签下所有子标签信息以及团队关联的标签信息
 	DeleteTagByParam(ctx context.Context, param *dto.DelResourceTag) error
 
@@ -75,8 +72,7 @@ type tagTreeAppImpl struct {
 var _ (TagTree) = (*tagTreeAppImpl)(nil)
 
 func (p *tagTreeAppImpl) SaveTag(ctx context.Context, pid uint64, tag *entity.TagTree) error {
-	accountId := contextx.GetLoginAccount(ctx).Id
-	// 新建项目树节点信息
+	// 新建资源树节点信息
 	if tag.Id == 0 {
 		if strings.Contains(tag.Code, entity.CodePathSeparator) {
 			return errorx.NewBizI(ctx, imsg.ErrTagCodeInvalid)
@@ -86,18 +82,20 @@ func (p *tagTreeAppImpl) SaveTag(ctx context.Context, pid uint64, tag *entity.Ta
 			if err != nil {
 				return errorx.NewBiz("parent tag not found")
 			}
-			// if p.tagResourceApp.CountByCond(&entity.TagResource{TagId: tag.Pid}) > 0 {
-			// 	return errorx.NewBiz("该父标签已关联资源, 无法添加子标签")
-			// }
 
 			tag.CodePath = parentTag.CodePath + tag.Code + entity.CodePathSeparator
+			
+			account := contextx.GetLoginAccount(ctx)
+			if account == nil {
+				return errorx.NewBiz("login account not found")
+			}
+			if p.CanAccess(account.Id, tag.CodePath) != nil {
+				return errorx.NewBizI(ctx, imsg.ErrNoPermissionCreateTag)
+			}
 		} else {
 			tag.CodePath = tag.Code + entity.CodePathSeparator
 		}
-		if p.CanAccess(accountId, tag.CodePath) != nil {
-			return errorx.NewBizI(ctx, imsg.ErrNoPermissionCreateTag)
-		}
-
+		
 		// 判断该路径是否存在
 		var hasLikeTags []entity.TagTree
 		p.GetRepo().SelectByCondition(&entity.TagTreeQuery{CodePathLikes: []string{tag.CodePath}}, &hasLikeTags)
@@ -152,16 +150,16 @@ func (p *tagTreeAppImpl) SaveResourceTag(ctx context.Context, param *dto.SaveRes
 	if len(oldParentTagTree) > 0 {
 		// 获取所有旧的子标签
 		p.ListByQuery(&entity.TagTreeQuery{
-			CodePathLikes: collx.ArrayMap[*entity.TagTree, string](oldParentTagTree, func(val *entity.TagTree) string {
+			CodePathLikes: collx.ArrayMap(oldParentTagTree, func(val *entity.TagTree) string {
 				return val.CodePath
 			}),
 		}, &oldChildrenTags)
 	}
 
 	// 旧的codePath -> tag
-	oldCodePath2Tag := collx.ArrayToMap[*entity.TagTree, string](oldChildrenTags, func(val *entity.TagTree) string { return val.CodePath })
+	oldCodePath2Tag := collx.ArrayToMap(oldChildrenTags, func(val *entity.TagTree) string { return val.CodePath })
 	// 新的codePath -> tag
-	newCodePath2Tag := collx.ArrayToMap[*entity.TagTree, string](newTags, func(val *entity.TagTree) string { return val.CodePath })
+	newCodePath2Tag := collx.ArrayToMap(newTags, func(val *entity.TagTree) string { return val.CodePath })
 
 	var addCodePaths, delCodePaths []string
 	addCodePaths, delCodePaths, _ = collx.ArrayCompare(collx.MapKeys(newCodePath2Tag), collx.MapKeys(oldCodePath2Tag))
@@ -257,34 +255,6 @@ func (p *tagTreeAppImpl) ChangeParentTag(ctx context.Context, tagType entity.Tag
 
 		tag.CodePath = pathSections.ToCodePath()
 		if err := p.UpdateById(ctx, tag); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (p *tagTreeAppImpl) MovingTag(ctx context.Context, fromTagPath string, toTagPath string) error {
-	fromTag := &entity.TagTree{CodePath: fromTagPath}
-	if err := p.GetByCond(fromTag); err != nil {
-		return errorx.NewBiz("move tag not found")
-	}
-
-	toTag := &entity.TagTree{CodePath: toTagPath}
-	if err := p.GetByCond(toTag); err != nil {
-		return errorx.NewBiz("target tag not found")
-	}
-
-	// 获取要移动标签的所有子标签
-	var childrenTags []*entity.TagTree
-	p.ListByQuery(&entity.TagTreeQuery{CodePathLikes: []string{fromTagPath}}, &childrenTags)
-
-	// 获取父路径, 若fromTagPath=tag1/tag2/1|xxx则返回 tag1/tag2/
-	fromParentPath := string(entity.CodePath(fromTagPath).GetParent(0))
-	for _, childTag := range childrenTags {
-		// 替换path，若childPath = tag1/tag2/1|xxx/11|yyy, toTagPath=tag3/tag4则替换为tag3/tag4/1|xxx/11|yyy/
-		childTag.CodePath = strings.Replace(childTag.CodePath, fromParentPath, toTagPath, 1)
-		if err := p.UpdateById(ctx, childTag); err != nil {
 			return err
 		}
 	}
@@ -580,7 +550,7 @@ func (p *tagTreeAppImpl) deleteByIds(ctx context.Context, tagIds []uint64) error
 // filterCodePaths 根据账号拥有的标签路径以及指定的标签路径，过滤出符合查询条件的标签路径
 func filterCodePaths(accountTagPaths []string, tagPaths []string) []string {
 	var res []string
-	queryPaths := collx.ArrayFilter[string](tagPaths, func(tagPath string) bool {
+	queryPaths := collx.ArrayFilter(tagPaths, func(tagPath string) bool {
 		for _, acPath := range accountTagPaths {
 			// 查询条件： a/b/  有权的：a/  查询结果应该是: a/b/
 			if strings.HasPrefix(tagPath, acPath) {
@@ -590,7 +560,7 @@ func filterCodePaths(accountTagPaths []string, tagPaths []string) []string {
 		return false
 	})
 
-	acPaths := collx.ArrayFilter[string](accountTagPaths, func(acPath string) bool {
+	acPaths := collx.ArrayFilter(accountTagPaths, func(acPath string) bool {
 		for _, tagPath := range tagPaths {
 			// 查询条件： a/  有权的：a/b/  查询结果应该是: a/b/，如果以a/去查可能会查出无权的 a/c/相关联的数据
 			if strings.HasPrefix(acPath, tagPath) {

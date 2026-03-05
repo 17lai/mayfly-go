@@ -192,10 +192,8 @@ export default {
             loginFailMinPlaceholder: 'After a specified number of login failures, re-login is prohibited within m minutes',
 
             aiModelConf: 'AI Model Config',
-            aiModelType: 'Model Type',
-            aiModelTypePlaceholder: 'Please select a model type',
             aiModel: 'Model',
-            aiModelPlaceholder: 'Please enter the model',
+            aiModelPlaceholder: 'protocol/model name, such as openai/gpt-3.5-turbo',
             aiBaseUrl: 'Base URL',
             aiBaseUrlPlaceholder: 'Please enter the model request URL',
             aiApiKey: 'API Key',

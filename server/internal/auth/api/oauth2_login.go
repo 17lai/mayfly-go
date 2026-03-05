@@ -214,7 +214,7 @@ func (a *Oauth2Login) getOAuthClient() (*oauth2.Config, *config.Oauth2Login) {
 			AuthURL:  oath2LoginConfig.AuthorizationURL,
 			TokenURL: oath2LoginConfig.AccessTokenURL,
 		},
-		RedirectURL: oath2LoginConfig.RedirectURL + "/#/oauth2/callback",
+		RedirectURL: oath2LoginConfig.RedirectURL + "/oauth2/callback",
 		Scopes:      strings.Split(oath2LoginConfig.Scopes, ","),
 	}
 	return client, oath2LoginConfig

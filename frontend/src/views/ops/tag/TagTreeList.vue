@@ -23,7 +23,6 @@
                 <el-scrollbar class="tag-tree-data">
                     <el-tree
                         class="min-w-full inline-block"
-                        :indent="10"
                         ref="tagTreeRef"
                         node-key="id"
                         highlight-current
@@ -46,11 +45,6 @@
 
                                 <span class="ml-1">
                                     {{ data.name }}
-                                    <template v-if="data.code">
-                                        <span style="color: #3c8dbc">【</span>
-                                        {{ data.code }}
-                                        <span style="color: #3c8dbc">】</span>
-                                    </template>
                                     <el-tag v-if="data.children !== null && data.id != allNode.id" size="small">{{ data.children.length }}</el-tag>
                                 </span>
                             </span>
@@ -133,7 +127,6 @@ import { toRefs, ref, watch, reactive, onMounted, computed, nextTick, useTemplat
 import { tagApi } from './api';
 import { formatDate } from '@/common/utils/format';
 import { Contextmenu, ContextmenuItem } from '@/components/contextmenu/index';
-import { useUserInfo } from '@/store/userInfo';
 import { TagResourceTypeEnum } from '@/common/commonEnum';
 import EnumTag from '@/components/enumtag/EnumTag.vue';
 import EnumValue from '@/common/Enum';

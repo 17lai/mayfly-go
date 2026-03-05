@@ -61,7 +61,7 @@
             </el-form-item>
         </el-form>
 
-        <el-dialog :title="$t('login.changePassword')" v-model="changePwdDialog.visible" :close-on-click-modal="false" width="450px" :destroy-on-close="true">
+        <el-dialog :title="$t('login.changePassword')" v-model="changePwdDialog.visible" :close-on-click-modal="false" width="350px" :destroy-on-close="true">
             <el-form :model="changePwdDialog.form" :rules="changePwdDialog.rules" ref="changePwdFormRef" label-width="auto">
                 <el-form-item prop="username" :label="$t('common.username')" required>
                     <el-input v-model.trim="changePwdDialog.form.username" disabled></el-input>
@@ -80,12 +80,10 @@
             </el-form>
 
             <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="cancelChangePwd">{{ $t('common.cancel') }}</el-button>
-                    <el-button @click="changePwd" type="primary" :loading="loading.changePwd">
-                        {{ $t('common.confirm') }}
-                    </el-button>
-                </div>
+                <<el-button @click="cancelChangePwd">{{ $t('common.cancel') }}</el-button>
+                <el-button @click="changePwd" type="primary" :loading="loading.changePwd">
+                    {{ $t('common.confirm') }}
+                </el-button>
             </template>
         </el-dialog>
 
@@ -115,15 +113,13 @@
             </el-form>
 
             <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="otpVerify" type="primary" :loading="loading.otpConfirm">
-                        {{ $t('common.confirm') }}
-                    </el-button>
-                </div>
+                <el-button @click="otpVerify" type="primary" :loading="loading.otpConfirm">
+                    {{ $t('common.confirm') }}
+                </el-button>
             </template>
         </el-dialog>
 
-        <el-dialog :title="$t('updateBasicInfo')" v-model="baseInfoDialog.visible" :close-on-click-modal="false" width="450px" :destroy-on-close="true">
+        <el-dialog :title="$t('login.updateBasicInfo')" v-model="baseInfoDialog.visible" :close-on-click-modal="false" width="350px" :destroy-on-close="true">
             <el-form :model="baseInfoDialog.form" :rules="baseInfoDialog.rules" ref="baseInfoFormRef" label-width="auto">
                 <el-form-item prop="username" :label="$t('common.username')" required>
                     <el-input v-model.trim="baseInfoDialog.form.username"></el-input>
@@ -134,11 +130,9 @@
             </el-form>
 
             <template #footer>
-                <div class="dialog-footer">
-                    <el-button @click="updateUserInfo()" type="primary" :loading="loading.updateUserConfirm">
-                        {{ $t('common.confirm') }}
-                    </el-button>
-                </div>
+                <el-button @click="updateUserInfo()" type="primary" :loading="loading.updateUserConfirm">
+                    {{ $t('common.confirm') }}
+                </el-button>
             </template>
         </el-dialog>
     </div>

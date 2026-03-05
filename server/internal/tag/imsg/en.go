@@ -6,7 +6,6 @@ var En = map[i18n.MsgId]string{
 	// tag
 	LogTagSave:   "Tag Tree - Save",
 	LogTagDelete: "Tag Tree - Delete",
-	LogTagMove:   "Tag Tree - Move",
 
 	ErrTagCodeInvalid:         "code cannot contain '/'",
 	ErrNoAdminCreateTag:       "Non-administrators cannot add a root tag",

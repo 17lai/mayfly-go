@@ -367,7 +367,7 @@ func V1_10_4() []*gormigrate.Migration {
 						Key:        "AiModelConfig",
 						Name:       "system.sysconf.aiModelConf",
 						Value:      "{}", // 默认空JSON值
-						Params:     `[{"model":"modelType","name":"system.sysconf.aiModelType","placeholder":"system.sysconf.aiModelTypePlaceholder","options":"openai"},{"model":"model","name":"system.sysconf.aiModel","placeholder":"system.sysconf.aiModelPlaceholder"},{"model":"baseUrl","name":"system.sysconf.aiBaseUrl","placeholder":"system.sysconf.aiBaseUrlPlaceholder"},{"model":"apiKey","name":"ApiKey","placeholder":"api key"}]`,
+						Params:     `[{"model":"model","name":"system.sysconf.aiModel","placeholder":"system.sysconf.aiModelPlaceholder"},{"model":"baseUrl","name":"system.sysconf.aiBaseUrl","placeholder":"system.sysconf.aiBaseUrlPlaceholder"},{"model":"apiKey","name":"ApiKey","placeholder":"api key"}]`,
 						Permission: "all",
 					}
 					aiConfig.CreateTime = &now

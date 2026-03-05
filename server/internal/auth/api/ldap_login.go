@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"mayfly-go/internal/auth/api/form"
 	"mayfly-go/internal/auth/config"
@@ -22,7 +23,6 @@ import (
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
-	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -129,11 +129,11 @@ type UserInfo struct {
 func Authenticate(username, password string) (*UserInfo, error) {
 	ldapConf := config.GetLdapLogin()
 	if !ldapConf.Enable {
-		return nil, errors.Errorf("LDAP login is not enabled")
+		return nil, fmt.Errorf("LDAP login is not enabled")
 	}
 	conn, err := Connect(ldapConf)
 	if err != nil {
-		return nil, errors.Errorf("connect: %v", err)
+		return nil, fmt.Errorf("connect: %v", err)
 	}
 	defer func() { _ = conn.Close() }()
 
@@ -151,21 +151,21 @@ func Authenticate(username, password string) (*UserInfo, error) {
 		),
 	)
 	if err != nil {
-		return nil, errors.Errorf("search user DN: %v", err)
+		return nil, fmt.Errorf("search user DN: %v", err)
 	} else if len(sr.Entries) != 1 {
-		return nil, errors.Errorf("expect 1 user DN but got %d", len(sr.Entries))
+		return nil, fmt.Errorf("expect 1 user DN but got %d", len(sr.Entries))
 	}
 	entry := sr.Entries[0]
 
 	// Bind as the user to verify their password
 	err = conn.Bind(entry.DN, password)
 	if err != nil {
-		return nil, errors.Errorf("bind user: %v", err)
+		return nil, fmt.Errorf("bind user: %v", err)
 	}
 
 	userName := entry.GetAttributeValue(ldapConf.UidMap)
 	if userName == "" {
-		return nil, errors.Errorf("the attribute %q is not found or has empty value", ldapConf.UidMap)
+		return nil, fmt.Errorf("the attribute %q is not found or has empty value", ldapConf.UidMap)
 	}
 	return &UserInfo{
 		UserName:    userName,
@@ -185,7 +185,7 @@ func Connect(ldapConf *config.LdapLogin) (*ldap.Conn, error) {
 	err = conn.Bind(ldapConf.BindDN, ldapConf.BindPwd)
 	if err != nil {
 		_ = conn.Close()
-		return nil, errors.Errorf("bind: %v", err)
+		return nil, fmt.Errorf("bind: %v", err)
 	}
 	return conn, nil
 }
@@ -199,19 +199,19 @@ func dial(ldapConf *config.LdapLogin) (*ldap.Conn, error) {
 	if ldapConf.SecurityProtocol == "LDAPS" {
 		conn, err := ldap.DialURL("ldaps://"+addr, ldap.DialWithTLSConfig(tlsConfig))
 		if err != nil {
-			return nil, errors.Errorf("dial TLS: %v", err)
+			return nil, fmt.Errorf("dial TLS: %v", err)
 		}
 		return conn, nil
 	}
 
 	conn, err := ldap.DialURL("ldap://" + addr)
 	if err != nil {
-		return nil, errors.Errorf("dial: %v", err)
+		return nil, fmt.Errorf("dial: %v", err)
 	}
 	if ldapConf.SecurityProtocol == "StartTLS" {
 		if err = conn.StartTLS(tlsConfig); err != nil {
 			_ = conn.Close()
-			return nil, errors.Errorf("start TLS: %v", err)
+			return nil, fmt.Errorf("start TLS: %v", err)
 		}
 	}
 	return conn, nil

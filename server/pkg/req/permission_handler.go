@@ -51,16 +51,16 @@ func PermissionHandler(rc *Ctx) error {
 		tokenStr = rc.Query("token")
 	}
 	if tokenStr == "" {
-		return errorx.PermissionErr
+		return errorx.ErrPermission
 	}
 	userId, userName, err := ParseToken(tokenStr)
 	if err != nil || userId == 0 {
-		return errorx.AccessTokenInvalid
+		return errorx.ErrInvalidToken
 	}
 	// 权限不为nil，并且permission code不为空，则校验是否有权限code
 	if permission != nil && permission.Code != "" {
 		if !permissionCodeRegistry.HasCode(userId, permission.Code) {
-			return errorx.PermissionErr
+			return errorx.ErrPermission
 		}
 	}
 	rc.MetaCtx = contextx.WithLoginAccount(rc.MetaCtx, &model.LoginAccount{

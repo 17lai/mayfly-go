@@ -50,12 +50,12 @@ func Error(bizerr *errorx.BizError) *Result {
 
 // 返回服务器错误Result
 func ServerError(msg string) *Result {
-	serverErr := errorx.NewBizCode(errorx.ServerError.Code(), msg)
+	serverErr := errorx.NewBizCode(errorx.ErrServer.Code(), msg)
 	return Error(serverErr)
 }
 
 func TokenError() *Result {
-	return Error(errorx.PermissionErr)
+	return Error(errorx.ErrPermission)
 }
 
 func ErrorBy(code int16, msg string) *Result {
