@@ -30,6 +30,8 @@ type qywxBotMsgResp struct {
 // QywxBotSender 企业微信机器人消息发送
 type QywxBotSender struct{}
 
+var _ msgx.MsgSender = QywxBotSender{}
+
 func (e QywxBotSender) Send(ctx context.Context, channel *msgx.Channel, msg *msgx.Msg) error {
 	// https://developer.work.weixin.qq.com/document/path/91770
 	msgReq := qywxBotMsgReq{}

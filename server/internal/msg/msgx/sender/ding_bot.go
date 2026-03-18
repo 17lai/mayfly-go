@@ -41,6 +41,8 @@ type dingBotMsgResp struct {
 // DingBotSender 钉钉机器人消息发送
 type DingBotSender struct{}
 
+var _ msgx.MsgSender = DingBotSender{}
+
 func (d DingBotSender) Send(ctx context.Context, channel *msgx.Channel, msg *msgx.Msg) error {
 	// https://open.dingtalk.com/document/robots/custom-robot-access#title-72m-8ag-pqw
 	msgReq := dingBotMsgReq{}

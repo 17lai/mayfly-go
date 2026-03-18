@@ -2,120 +2,66 @@ package agent
 
 import (
 	"fmt"
-	"io"
-	"log"
 	"mayfly-go/pkg/logx"
-	"strings"
 
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/schema"
 )
 
 func LogEvent(event *adk.AgentEvent) {
-	logx.Debugf("agent name: %s, path: %s", event.AgentName, event.RunPath)
-	if event.Output != nil && event.Output.MessageOutput != nil {
-		if m := event.Output.MessageOutput.Message; m != nil {
-			if len(m.Content) > 0 {
-				if m.Role == schema.Tool {
-					logx.Debugf("agent tool response: %s", m.Content)
-				} else {
-					logx.Debugf("agent answer: %s", m.Content)
-				}
-			}
-			if len(m.ToolCalls) > 0 {
-				for _, tc := range m.ToolCalls {
-					logx.Debugf("agent tool name: %s", tc.Function.Name)
-					logx.Debugf("agent tool arguments: %s", tc.Function.Arguments)
-				}
-			}
-		} else if s := event.Output.MessageOutput.MessageStream; s != nil {
-			toolMap := map[int][]*schema.Message{}
-			var contentStart bool
-			charNumOfOneRow := 0
-			maxCharNumOfOneRow := 120
-			for {
-				chunk, err := s.Recv()
-				if err != nil {
-					if err == io.EOF {
-						break
-					}
-					logx.Debugf("agent error: %v", err)
-					return
-				}
-				if chunk.Content != "" {
-					if !contentStart {
-						contentStart = true
-						if chunk.Role == schema.Tool {
-							logx.Debugf("agent tool response: ")
-						} else {
-							logx.Debugf("agent answer: ")
-						}
-					}
+	agentTag := fmt.Sprintf("Agent - [%s|%s]", event.AgentName, event.RunPath)
 
-					charNumOfOneRow += len(chunk.Content)
-					if strings.Contains(chunk.Content, "\n") {
-						charNumOfOneRow = 0
-					} else if charNumOfOneRow >= maxCharNumOfOneRow {
-						logx.Debugf("\n")
-						charNumOfOneRow = 0
-					}
-					logx.Debugf("%v", chunk.Content)
-				}
+	msg, _, err := adk.GetMessage(event)
+	if err != nil {
+		logx.Debugf("%s error: get msg error: %v", agentTag, err)
+		return
+	}
 
-				if len(chunk.ToolCalls) > 0 {
-					for _, tc := range chunk.ToolCalls {
-						index := tc.Index
-						if index == nil {
-							logx.Error("index is nil")
-						}
-						toolMap[*index] = append(toolMap[*index], &schema.Message{
-							Role: chunk.Role,
-							ToolCalls: []schema.ToolCall{
-								{
-									ID:    tc.ID,
-									Type:  tc.Type,
-									Index: tc.Index,
-									Function: schema.FunctionCall{
-										Name:      tc.Function.Name,
-										Arguments: tc.Function.Arguments,
-									},
-								},
-							},
-						})
-					}
-				}
-			}
-
-			for _, msgs := range toolMap {
-				m, err := schema.ConcatMessages(msgs)
-				if err != nil {
-					log.Fatalf("ConcatMessage failed: %v", err)
-					return
-				}
-				logx.Debugf("agent tool name: %s", m.ToolCalls[0].Function.Name)
-				logx.Debugf("agent tool arguments: %s", m.ToolCalls[0].Function.Arguments)
-			}
+	// 消息内容
+	if len(msg.Content) > 0 {
+		content := msg.Content
+		if len(content) > 500 {
+			content = content[:500] + "..."
+		}
+		if msg.Role == schema.Tool {
+			logx.Infof("%s tool[%s] response: %s", agentTag, msg.ToolName, content)
+		} else {
+			logx.Infof("%s answer: %s", agentTag, content)
 		}
 	}
+
+	// 工具调用
+	if len(msg.ToolCalls) > 0 {
+		for _, tc := range msg.ToolCalls {
+			args := tc.Function.Arguments
+			if len(args) > 300 {
+				args = args[:300] + "..."
+			}
+			logx.Infof("%s call %s(%s)", agentTag, tc.Function.Name, args)
+		}
+	}
+
+	// 动作
 	if event.Action != nil {
 		if event.Action.TransferToAgent != nil {
-			logx.Debugf("agent action: transfer to %v", event.Action.TransferToAgent.DestAgentName)
+			logx.Debugf("%s ->  transfer: %s", agentTag, event.Action.TransferToAgent.DestAgentName)
 		}
 		if event.Action.Interrupted != nil {
 			for _, ic := range event.Action.Interrupted.InterruptContexts {
-				str, ok := ic.Info.(fmt.Stringer)
-				if ok {
-					logx.Debugf("\n%s", str.String())
+				if str, ok := ic.Info.(fmt.Stringer); ok {
+					logx.Infof("%s ⏸  %s", agentTag, str.String())
 				} else {
-					logx.Debugf("\n%v", ic.Info)
+					logx.Infof("%s ⏸  %v", agentTag, ic.Info)
 				}
 			}
 		}
 		if event.Action.Exit {
-			logx.Debugf("agent action: exit")
+			logx.Infof("%s done", agentTag)
 		}
 	}
+
+	// 错误
 	if event.Err != nil {
-		logx.Debugf("agent error: %v", event.Err)
+		logx.Errorf("%s error: %v", agentTag, event.Err)
 	}
 }

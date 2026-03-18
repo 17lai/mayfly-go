@@ -1,81 +1,113 @@
 <template>
-    <div>
-        <el-drawer
-            :title="props.title"
-            v-model="visible"
-            :before-close="cancel"
-            size="50%"
-            body-class="!p-2"
-            header-class="!mb-2"
-            :destroy-on-close="true"
-            :close-on-click-modal="!props.instTaskId"
-        >
-            <template #header>
-                <DrawerHeader :header="title" :back="cancel" />
-            </template>
+    <el-drawer
+        :title="props.title"
+        v-model="visible"
+        :before-close="cancel"
+        size="50%"
+        body-class="!p-2"
+        header-class="!mb-2"
+        :destroy-on-close="true"
+        :close-on-click-modal="!props.instTaskId"
+    >
+        <template #header>
+            <DrawerHeader :header="title" :back="cancel" />
+        </template>
 
-            <div>
-                <el-divider content-position="left">{{ $t('flow.proc') }}</el-divider>
-                <el-descriptions :column="3" border>
-                    <el-descriptions-item :span="1" :label="$t('flow.procdefName')">{{ procinst.procdefName }}</el-descriptions-item>
-                    <el-descriptions-item :span="1" :label="$t('flow.bizType')">
-                        <enum-tag :enums="FlowBizType" :value="procinst.bizType"></enum-tag>
-                    </el-descriptions-item>
-                    <el-descriptions-item :span="1" :label="$t('flow.initiator')">
-                        <AccountInfo :username="procinst.creator || ''" />
-                    </el-descriptions-item>
+        <el-tabs v-model="state.activeTab">
+            <el-tab-pane :label="$t('common.basic')" name="basic">
+                <div>
+                    <el-divider content-position="left">{{ $t('flow.proc') }}</el-divider>
+                    <el-descriptions :column="3" border>
+                        <el-descriptions-item :span="1" :label="$t('flow.procdefName')">{{ procinst.procdefName }}</el-descriptions-item>
+                        <el-descriptions-item :span="1" :label="$t('flow.bizType')">
+                            <enum-tag :enums="FlowBizType" :value="procinst.bizType"></enum-tag>
+                        </el-descriptions-item>
+                        <el-descriptions-item :span="1" :label="$t('flow.initiator')">
+                            <AccountInfo :username="procinst.creator || ''" />
+                        </el-descriptions-item>
 
-                    <el-descriptions-item :span="1" :label="$t('flow.procinstStatus')">
-                        <enum-tag :enums="ProcinstStatus" :value="procinst.status"></enum-tag>
-                    </el-descriptions-item>
-                    <el-descriptions-item :span="1" :label="$t('flow.bizStatus')">
-                        <enum-tag :enums="ProcinstBizStatus" :value="procinst.bizStatus"></enum-tag>
-                    </el-descriptions-item>
-                    <el-descriptions-item :span="1" :label="$t('flow.startingTime')">{{ formatDate(procinst.createTime) }}</el-descriptions-item>
+                        <el-descriptions-item :span="1" :label="$t('flow.procinstStatus')">
+                            <enum-tag :enums="ProcinstStatus" :value="procinst.status"></enum-tag>
+                        </el-descriptions-item>
+                        <el-descriptions-item :span="1" :label="$t('flow.bizStatus')">
+                            <enum-tag :enums="ProcinstBizStatus" :value="procinst.bizStatus"></enum-tag>
+                        </el-descriptions-item>
+                        <el-descriptions-item :span="1" :label="$t('flow.startingTime')">{{ formatDate(procinst.createTime) }}</el-descriptions-item>
 
-                    <div v-if="procinst.duration">
-                        <el-descriptions-item :span="1.5" :label="$t('flow.endTime')">{{ formatDate(procinst.endTime) }}</el-descriptions-item>
-                        <el-descriptions-item :span="1.5" :label="$t('flow.duration')">{{ formatTime(procinst.duration) }}</el-descriptions-item>
-                    </div>
+                        <div v-if="procinst.duration">
+                            <el-descriptions-item :span="1.5" :label="$t('flow.endTime')">{{ formatDate(procinst.endTime) }}</el-descriptions-item>
+                            <el-descriptions-item :span="1.5" :label="$t('flow.duration')">{{ formatTime(procinst.duration) }}</el-descriptions-item>
+                        </div>
 
-                    <el-descriptions-item :span="3" :label="$t('common.remark')">
-                        {{ procinst.remark }}
-                    </el-descriptions-item>
-                </el-descriptions>
-            </div>
+                        <el-descriptions-item :span="3" :label="$t('common.remark')">
+                            {{ procinst.remark }}
+                        </el-descriptions-item>
+                    </el-descriptions>
+                </div>
 
-            <div>
-                <el-divider content-position="left">{{ $t('flow.bizInfo') }}</el-divider>
-                <component v-if="procinst.bizType" ref="keyValueRef" :is="bizComponents[procinst.bizType]" :procinst="procinst"> </component>
-            </div>
+                <div>
+                    <el-divider content-position="left">{{ $t('flow.bizInfo') }}</el-divider>
+                    <component v-if="procinst.bizType" ref="keyValueRef" :is="bizComponents[procinst.bizType]" :procinst="procinst"> </component>
+                </div>
 
-            <div v-if="props.instTaskId">
-                <el-divider content-position="left">{{ $t('flow.approveForm') }}</el-divider>
-                <el-form :model="form" label-width="auto">
-                    <el-form-item prop="status" :label="$t('flow.approveResult')" required>
-                        <el-select v-model="form.status">
-                            <el-option :label="$t(ProcinstTaskStatus.Pass.label)" :value="ProcinstTaskStatus.Pass.value"> </el-option>
-                            <el-option :label="$t(ProcinstTaskStatus.Back.label)" :value="ProcinstTaskStatus.Back.value"> </el-option>
-                            <el-option :label="$t(ProcinstTaskStatus.Reject.label)" :value="ProcinstTaskStatus.Reject.value"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item prop="remark" :label="$t('common.remark')">
-                        <el-input v-model.trim="form.remark" :placeholder="$t('common.remark')" type="textarea" clearable></el-input>
-                    </el-form-item>
-                </el-form>
-            </div>
+                <div v-if="props.instTaskId">
+                    <el-divider content-position="left">{{ $t('flow.approveForm') }}</el-divider>
+                    <el-form :model="form" label-width="auto">
+                        <el-form-item prop="status" :label="$t('flow.approveResult')" required>
+                            <el-select v-model="form.status">
+                                <el-option :label="$t(ProcinstTaskStatus.Pass.label)" :value="ProcinstTaskStatus.Pass.value"> </el-option>
+                                <el-option :label="$t(ProcinstTaskStatus.Back.label)" :value="ProcinstTaskStatus.Back.value"> </el-option>
+                                <el-option :label="$t(ProcinstTaskStatus.Reject.label)" :value="ProcinstTaskStatus.Reject.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item prop="remark" :label="$t('common.remark')">
+                            <el-input v-model.trim="form.remark" :placeholder="$t('common.remark')" type="textarea" clearable></el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
 
-            <div v-if="flowDef">
-                <el-divider content-position="left">{{ $t('flow.approveNode') }}</el-divider>
-                <FlowDesign height="300px" disabled center :data="flowDef" />
-            </div>
+                <div v-if="flowDef" class="h-75">
+                    <el-divider content-position="left">{{ $t('flow.approveNode') }}</el-divider>
+                    <FlowDesign disabled center :data="flowDef" />
+                </div>
+            </el-tab-pane>
 
-            <template #footer v-if="props.instTaskId">
-                <el-button @click="cancel()">{{ $t('common.cancel') }}</el-button>
-                <el-button type="primary" :loading="saveBtnLoading" @click="btnOk">{{ $t('common.confirm') }}</el-button>
-            </template>
-        </el-drawer>
-    </div>
+            <el-tab-pane :label="$t('flow.approvalRecord')" name="approvalRecord">
+                <el-timeline>
+                    <el-timeline-item
+                        v-for="task in procinst.procinstTasks"
+                        :key="task.id"
+                        :timestamp="formatDate(task.createTime)"
+                        :type="getTaskStatusType(task.status)"
+                        :icon="getTaskStatusIcon(task.status)"
+                        size="large"
+                        placement="top"
+                    >
+                        <el-card shadow="hover" class="hover:shadow-md transition-shadow">
+                            <div>
+                                <div class="flex justify-between">
+                                    <div>
+                                        <el-text tag="b" size="large">{{ task.nodeName }}</el-text> -
+                                        <el-text tag="b" size="large" type="primary">{{ task.handler || '/' }}</el-text>
+                                    </div>
+                                    <enum-tag :enums="ProcinstTaskStatus" :value="task.status" />
+                                </div>
+
+                                <div class="mt-2">
+                                    <el-text class="ml-5" tag="b">{{ task.remark }}</el-text>
+                                </div>
+                            </div>
+                        </el-card>
+                    </el-timeline-item>
+                </el-timeline>
+            </el-tab-pane>
+        </el-tabs>
+
+        <template #footer v-if="props.instTaskId">
+            <el-button @click="cancel()">{{ $t('common.cancel') }}</el-button>
+            <el-button type="primary" :loading="saveBtnLoading" @click="btnOk">{{ $t('common.confirm') }}</el-button>
+        </template>
+    </el-drawer>
 </template>
 
 <script lang="ts" setup>
@@ -118,6 +150,7 @@ const bizComponents: any = shallowReactive({
 });
 
 const state = reactive({
+    activeTab: 'basic',
     procinst: {} as any,
     flowDef: null as any,
     tasks: [] as any,
@@ -207,7 +240,30 @@ const btnOk = async () => {
 
 const cancel = () => {
     visible.value = false;
+    state.activeTab = 'basic';
     emit('cancel');
+};
+
+const getTaskStatusIcon = (status: number) => {
+    if (status === ProcinstTaskStatus.Pass.value) {
+        return 'Check';
+    } else if (status === ProcinstTaskStatus.Back.value) {
+        return 'Close';
+    } else if (status === ProcinstTaskStatus.Reject.value) {
+        return 'Close';
+    }
+    return 'SemiSelect';
+};
+
+const getTaskStatusType = (status: number) => {
+    if (status === ProcinstTaskStatus.Pass.value) {
+        return 'success';
+    } else if (status === ProcinstTaskStatus.Back.value) {
+        return 'warning';
+    } else if (status === ProcinstTaskStatus.Reject.value) {
+        return 'danger';
+    }
+    return 'primary';
 };
 </script>
 <style lang="scss"></style>

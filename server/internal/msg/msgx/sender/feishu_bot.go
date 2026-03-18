@@ -35,6 +35,8 @@ type feishuBotMsgResp struct {
 // FeishuBotSender 发送飞书机器人消息
 type FeishuBotSender struct{}
 
+var _ msgx.MsgSender = FeishuBotSender{}
+
 func (f FeishuBotSender) Send(ctx context.Context, channel *msgx.Channel, msg *msgx.Msg) error {
 	// https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot
 	msgReq := feishuBotMsgReq{

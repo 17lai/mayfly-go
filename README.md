@@ -31,7 +31,7 @@
 
 ## 前言
 
-Web 版 **统一管理操作平台**，集成了对 Linux 系统的全面操作支持（包括终端管理[终端回放、命令过滤]、文件管理、脚本执行、进程监控及计划任务设置），同时提供了多种数据库（如 MySQL、PostgreSQL、Oracle、SQL Server、达梦、高斯、SQLite 等）的数据操作、数据同步与数据迁移功能。此外，还支持 Redis（单机、哨兵、集群模式）、 MongoDB 、Es 的操作管理，并结合工单流程审批功能，为企业提供一站式的运维与管理解决方案。
+Web 版 **统一管理操作平台**，集成了对 Linux 系统的全面操作支持（包括终端管理[终端回放、命令过滤]、文件管理、脚本执行、进程监控及计划任务设置），同时提供了多种数据库（如 MySQL、PostgreSQL、Oracle、SQL Server、达梦、高斯、SQLite 等）的数据操作、数据同步与数据迁移功能。此外，还支持 Redis（单机、哨兵、集群模式）、 MongoDB 、Es 、Kafka的操作管理，并结合工单流程审批功能，为企业提供一站式的运维与管理解决方案。
 
 ## 开发语言与主要框架
 
@@ -65,15 +65,11 @@ http://go.mayfly.run
 
 ![文件查看](https://foruda.gitee.com/images/1714378482611638688/7753faf6_1240250.png "屏幕截图")
 
-
 ![sql编辑器](https://foruda.gitee.com/images/1757164386318836686/c3b17a52_1240250.png)
-
 
 ![选表查数据](https://foruda.gitee.com/images/1757164281011401749/5109485f_1240250.png)
 
-
 ![redis操作](https://foruda.gitee.com/images/1757164442298752845/4af1b296_1240250.png)
-
 
 ![mongo操作](https://foruda.gitee.com/images/1714378916425714642/77fc0ed9_1240250.png "屏幕截图")
 

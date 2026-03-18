@@ -93,13 +93,11 @@ func (d *Container) GetContainersStats(rc *req.Ctx) {
 	biz.ErrIsNil(err)
 
 	var wg sync.WaitGroup
-	wg.Add(len(cs))
-
 	var mu sync.Mutex
 	allStats := make([]vo.ContainerStats, 0)
 	for _, c := range cs {
-		gox.Go(func() {
-			defer wg.Done()
+		wg.Go(func() {
+			defer gox.Recover()
 			if c.State != "running" {
 				return
 			}

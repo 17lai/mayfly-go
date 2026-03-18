@@ -16,8 +16,8 @@ func init() {
 }
 
 var (
-	protocolMap = collx.SM[string, Protocol]{}
-	chatModels = collx.SM[string,model.ToolCallingChatModel]{}
+	protocolMap collx.SM[string, Protocol]
+	chatModels  collx.SM[string, model.ToolCallingChatModel]
 )
 
 // Register 注册协议

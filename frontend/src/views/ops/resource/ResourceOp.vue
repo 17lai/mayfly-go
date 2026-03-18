@@ -48,7 +48,14 @@
                             :default-expanded-keys="state.defaultExpandedKeys"
                         >
                             <template #default="{ node, data }">
-                                <component v-if="data.nodeComponent" :is="data.nodeComponent" :node="node" :data="data" />
+                                <div v-if="data.type == TagResourceTypeEnum.Tag.value">
+                                    <span v-for="(value, i) in data.label.split('/')">
+                                        <el-text class="mr-[1.5px]! ml-[1.5px]!" v-if="i != 0" tag="b" type="primary" size="large">/</el-text>
+                                        <el-text>{{ value }}</el-text>
+                                    </span>
+                                </div>
+
+                                <component v-else-if="data.nodeComponent" :is="data.nodeComponent" :node="node" :data="data" />
                                 <BaseTreeNode v-else :node="node" :data="data" />
                             </template>
                         </el-tree>
@@ -86,6 +93,7 @@ import { TagTreeNode, ResourceComponentConfig, ResourceOpCtx } from '@/views/ops
 import { useI18n } from 'vue-i18n';
 import { useAutoOpenResource } from '@/store/autoOpenResource';
 import { storeToRefs } from 'pinia';
+import { LabelLayout } from 'echarts/features';
 
 const props = defineProps({
     load: {
@@ -371,10 +379,69 @@ const onResizeOpPanel = () => {
 const loadTags = async () => {
     const tags = await tagApi.getTagTrees.request({
         type: getResourceTypes().join(','),
-        flatten: '1',
+        flatten: '0',
     });
+
+    const result: any[] = [];
+    const flatten = (node: any, namePath: string[]) => {
+        const currentNamePath = [...namePath, node.name];
+
+        if (node.type !== TagResourceTypeEnum.Tag.value) {
+            return;
+        }
+
+        let hasNonMinus1Child = false;
+        for (const child of node.children || []) {
+            if (child.type !== TagResourceTypeEnum.Tag.value) {
+                hasNonMinus1Child = true;
+                break;
+            }
+        }
+
+        if (hasNonMinus1Child) {
+            const newNode = {
+                ...node,
+                children: [] as any[],
+            };
+            newNode.name = currentNamePath.join('/');
+
+            for (const child of node.children || []) {
+                if (child.type !== TagResourceTypeEnum.Tag.value) {
+                    const childCopy = {
+                        ...child,
+                        children: [] as any[],
+                    };
+                    childCopy.name = [...currentNamePath, child.name].join('/');
+
+                    for (const grandchild of child.children || []) {
+                        const grandchildCopy = {
+                            ...grandchild,
+                        };
+                        grandchildCopy.name = [...currentNamePath, child.name, grandchild.name].join('/');
+                        childCopy.children.push(grandchildCopy);
+                    }
+
+                    newNode.children.push(childCopy);
+                } else {
+                    flatten(child, currentNamePath);
+                }
+            }
+
+            result.push(newNode);
+            return;
+        }
+
+        for (const child of node.children || []) {
+            flatten(child, currentNamePath);
+        }
+    };
+
+    for (const tree of tags) {
+        flatten(tree, []);
+    }
+
     const tagNodes = [];
-    for (let tag of tags) {
+    for (let tag of result) {
         const tagNode = processTagNode(tag);
         tagNodes.push(tagNode);
     }
@@ -382,7 +449,7 @@ const loadTags = async () => {
 };
 
 const processTagNode = (tag: any): TagTreeNode => {
-    const tagNode = new TagTreeNode(tag.codePath, tag.namePath, tag.type);
+    const tagNode = new TagTreeNode(tag.codePath, tag.name, tag.type);
 
     if (!tag.children || !Array.isArray(tag.children) || tag.children.length == 0) {
         return tagNode;

@@ -14,7 +14,7 @@ func init() {
 
 var (
 	cronService = cron.New(cron.WithSeconds())
-	key2IdMap  *collx.SM[string, cron.EntryID] = collx.NewSM[string, cron.EntryID]()
+	key2IdMap   collx.SM[string, cron.EntryID]
 )
 
 func Start() {

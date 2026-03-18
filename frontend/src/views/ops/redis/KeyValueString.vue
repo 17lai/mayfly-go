@@ -3,7 +3,7 @@
         <el-form label-width="auto">
             <format-viewer ref="formatViewerRef" height="280px" :content="string.value"></format-viewer>
         </el-form>
-        <div class="mt-2 flex justify-end">
+        <div class="mt-1 flex justify-end">
             <el-button @click="saveValue" type="primary" v-auth="'redis:data:save'">{{ $t('common.save') }}</el-button>
         </div>
     </div>

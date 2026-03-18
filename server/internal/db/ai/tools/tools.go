@@ -11,4 +11,10 @@ func Init() {
 	} else {
 		agent.RegisterTool(agent.ToolTypeDb, queryTableTool)
 	}
+
+	if queryDataTool, err := GetQueryData(); err != nil {
+		logx.Errorf("agent tool - 获取QueryData工具失败: %v", err)
+	} else {
+		agent.RegisterTool(agent.ToolTypeDb, queryDataTool)
+	}
 }

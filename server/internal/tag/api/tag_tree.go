@@ -1,7 +1,6 @@
 package api
 
 import (
-	"cmp"
 	"fmt"
 	"mayfly-go/internal/tag/api/form"
 	"mayfly-go/internal/tag/api/vo"
@@ -46,8 +45,6 @@ func (t *TagTree) ReqConfs() *req.Confs {
 
 func (p *TagTree) GetTagTree(rc *req.Ctx) {
 	tagTypesStr := rc.Query("type")
-	flatten := rc.Query("flatten") // 是否展开平铺树
-	flatten = cmp.Or(flatten, "0")
 
 	var typePaths []entity.TypePath
 	if tagTypesStr != "" {
@@ -68,14 +65,7 @@ func (p *TagTree) GetTagTree(rc *req.Ctx) {
 		tagTrees = append(tagTrees, tag)
 	}
 
-	var tree []*vo.TagTreeItem
-	if flatten != "0" {
-		tree = tagTrees.ToFlattenTrees(0)
-	} else {
-		tree = tagTrees.ToTrees(0)
-	}
-
-	rc.ResData = tree
+	rc.ResData = tagTrees.ToTrees(0)
 }
 
 // complteTags 补全标签信息，使其能构造为树结构

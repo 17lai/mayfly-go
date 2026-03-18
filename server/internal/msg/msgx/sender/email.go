@@ -17,6 +17,8 @@ import (
 
 type EmailSender struct{}
 
+var _ (msgx.MsgSender) = EmailSender{}
+
 func (e EmailSender) Send(ctx context.Context, channel *msgx.Channel, msg *msgx.Msg) error {
 	return e.SendEmail(channel, msg)
 }

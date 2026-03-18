@@ -12,13 +12,11 @@ const heartbeatInterval = 25 * time.Second
 
 // UserClient 用户全部的连接
 type UserClient struct {
-	clients *collx.SM[string, *Client] // key->clientId, value->Client
+	clients collx.SM[string, *Client] // key->clientId, value->Client
 }
 
 func NewUserClient() *UserClient {
-	return &UserClient{
-		clients: collx.NewSM[string, *Client](),
-	}
+	return &UserClient{}
 }
 
 // AllClients 获取全部的连接
@@ -28,7 +26,7 @@ func (ucs *UserClient) AllClients() []*Client {
 
 // GetByCid 获取指定客户端ID的客户端
 func (ucs *UserClient) GetByCid(clientId string) *Client {
-	cli, _ :=  ucs.clients.Load(clientId)
+	cli, _ := ucs.clients.Load(clientId)
 	return cli
 }
 
@@ -49,7 +47,7 @@ func (ucs *UserClient) Count() int {
 
 // 连接管理
 type ClientManager struct {
-	UserClientMap *collx.SM[UserId, *UserClient] // 全部的用户连接, key->userid, value->*UserClient
+	UserClientMap collx.SM[UserId, *UserClient] // 全部的用户连接, key->userid, value->*UserClient
 
 	ConnectChan    chan *Client // 连接处理
 	DisConnectChan chan *Client // 断开连接处理
@@ -58,7 +56,6 @@ type ClientManager struct {
 
 func NewClientManager() (clientManager *ClientManager) {
 	return &ClientManager{
-		UserClientMap:  collx.NewSM[UserId, *UserClient](),
 		ConnectChan:    make(chan *Client, 10),
 		DisConnectChan: make(chan *Client, 10),
 		MsgChan:        make(chan *Msg, 100),

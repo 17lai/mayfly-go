@@ -67,11 +67,6 @@ type SM[K comparable, V any] struct {
 	m sync.Map
 }
 
-// NewSM 创建一个新的线程安全 map 实例
-func NewSM[K comparable, V any]() *SM[K, V] {
-	return &SM[K, V]{}
-}
-
 // Load 方法返回存储在 map 中键为 k 的值，如果不存在则返回零值和 false
 func (sm *SM[K, V]) Load(k K) (V, bool) {
 	v, ok := sm.m.Load(k)
@@ -112,7 +107,6 @@ func (sm *SM[K, V]) Delete(k K) {
 func (sm *SM[K, V]) Clear() {
 	sm.m.Clear()
 }
-
 
 // Range 遍历 map 中的所有键值对
 func (sm *SM[K, V]) Range(f func(k K, v V) bool) {

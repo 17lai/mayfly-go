@@ -2,38 +2,32 @@ package agent
 
 import (
 	"context"
-	"mayfly-go/internal/ai/config"
-	"mayfly-go/internal/ai/protocol"
 	"mayfly-go/pkg/logx"
 
 	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/adk/prebuilt/deep"
 	"github.com/cloudwego/eino/components/tool"
+	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
 )
 
-// GetAgent 获取AI Agent
-func GetAgent(ctx context.Context, modelConfig *config.ModelConfig, tools ...tool.BaseTool) (adk.Agent, error) {
-	toolableChatModel, err := protocol.GetChatModel(ctx, modelConfig)
+// newOpsExpertAgent 创建一个新的运维专家Agent
+func newOpsExpertAgent(ctx context.Context, tools ...tool.BaseTool) (adk.Agent, error) {
+	toolableChatModel, err := GetChatModel(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// 初始化所需的 tools
-	toolsConfig := adk.ToolsConfig{}
-	toolsConfig.Tools = tools
-
-	chatAgent, err := adk.NewChatModelAgent(ctx, &adk.ChatModelAgentConfig{
-		Name:        "ops_expert",
-		Description: "一位拥有20多年系统管理、数据库管理和基础设施优化经验的专业DevOps专家。",
-		Instruction: `你现在是一位专业的数据库管理员、Redis管理员和安全审核专家，请根据用户的问题给出最合适的答案。`,
+	return adk.NewChatModelAgent(ctx, &adk.ChatModelAgentConfig{
+		Name:        "OpsExpertAgent",
+		Description: "an agent for ops expert task",
 		Model:       toolableChatModel,
-		ToolsConfig: toolsConfig,
+		ToolsConfig: adk.ToolsConfig{
+			ToolsNodeConfig: compose.ToolsNodeConfig{
+				Tools: tools,
+			},
+		},
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	return chatAgent, nil
 }
 
 // GetOpsExpertAgent 获取运维专家agent
@@ -45,7 +39,7 @@ func GetOpsExpertAgent(ctx context.Context, toolTypes ...ToolType) (*AiAgent, er
 		}
 	}
 
-	agent, err := GetAgent(ctx, config.GetModel(), tools...)
+	agent, err := newOpsExpertAgent(ctx, tools...)
 	if err != nil {
 		return nil, err
 	}
@@ -60,15 +54,13 @@ type AiAgent struct {
 
 // Run 运行，并返回最终结果
 func (aiAgent *AiAgent) Run(ctx context.Context, sysPrompt string, question string) (string, error) {
-	if sysPrompt == "" {
-		sysPrompt = "你现在是一位拥有20年实战经验的顶级系统运维专家，精通Linux操作系统、数据库管理（如MySQL、PostgreSQL）、NoSQL数据库（如Redis、MongoDB）以及搜索引擎（如Elasticsearch）。"
-	}
-
 	runner := adk.NewRunner(ctx, adk.RunnerConfig{
-		EnableStreaming: false,
+		EnableStreaming: true,
 		Agent:           aiAgent.Agent,
 		CheckPointStore: NewInMemoryStore(),
 	})
+
+	deep.New(ctx, &deep.Config{})
 
 	iter := runner.Run(ctx, []adk.Message{
 		{
@@ -81,7 +73,7 @@ func (aiAgent *AiAgent) Run(ctx context.Context, sysPrompt string, question stri
 		},
 	})
 
-	res := ""
+	var lastMessage adk.Message
 	for {
 		event, ok := iter.Next()
 		if !ok {
@@ -91,15 +83,38 @@ func (aiAgent *AiAgent) Run(ctx context.Context, sysPrompt string, question stri
 		err := event.Err
 		if err != nil {
 			logx.Error(err.Error())
-			return res, err
+			return "", err
+		}
+
+		if lastMessage, _, err = adk.GetMessage(event); err != nil {
+			return "", err
 		}
 
 		LogEvent(event)
-		msg := event.Output.MessageOutput.Message
-		if msg != nil {
-			res = msg.Content
-		}
 	}
 
-	return res, nil
+	if lastMessage != nil {
+		return lastMessage.Content, nil
+	}
+
+	return "finished without output message", nil
+}
+
+func NewDeepAgent(ctx context.Context, tools ...tool.BaseTool) (adk.Agent, error) {
+	toolableChatModel, err := GetChatModel(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return deep.New(ctx, &deep.Config{
+		Name:        "OpsExpertAgent",
+		Description: "an agent for ops expert task",
+		ChatModel:   toolableChatModel,
+		// SubAgents:   []adk.Agent{ca, wa},
+		ToolsConfig: adk.ToolsConfig{
+			ToolsNodeConfig: compose.ToolsNodeConfig{
+				Tools: tools,
+			},
+		},
+		MaxIteration: 100,
+	})
 }

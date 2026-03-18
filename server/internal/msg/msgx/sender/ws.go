@@ -13,6 +13,8 @@ import (
 
 type WsSender struct{}
 
+var _ msgx.MsgSender = WsSender{}
+
 func (e WsSender) Send(ctx context.Context, channel *msgx.Channel, msg *msgx.Msg) error {
 	var err error
 	content := msg.Content

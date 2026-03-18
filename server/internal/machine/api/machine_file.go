@@ -15,8 +15,8 @@ import (
 	msgdto "mayfly-go/internal/msg/application/dto"
 	"mayfly-go/internal/pkg/event"
 	"mayfly-go/pkg/biz"
-	"mayfly-go/pkg/errorx"
 	"mayfly-go/pkg/global"
+	"mayfly-go/pkg/gox"
 	"mayfly-go/pkg/logx"
 	"mayfly-go/pkg/model"
 	"mayfly-go/pkg/req"
@@ -374,28 +374,15 @@ func (m *MachineFile) UploadFolder(rc *req.Ctx) {
 	chunks := collx.ArraySplit(folderFiles, groupNum)
 
 	var wg sync.WaitGroup
-	// 设置要等待的协程数量
-	wg.Add(len(chunks))
-
 	isSuccess := true
 	for _, chunk := range chunks {
 		wg.Go(func() {
-			defer func() {
-				// 协程执行完成后调用Done方法
-				wg.Done()
-				if err := recover(); err != nil {
-					isSuccess = false
-					logx.Errorf("upload file error: %s", err)
-					switch t := err.(type) {
-					case *errorx.BizError:
-						{
-							msgEvent.TmplChannel = msgdto.MsgTmplMachineFileUploadFail
-							msgEvent.Params["error"] = t.Error()
-							global.EventBus.Publish(ctx, event.EventTopicMsgTmplSend, msgEvent)
-						}
-					}
-				}
-			}()
+			defer gox.Recover(func(e error) {
+				isSuccess = false
+				msgEvent.TmplChannel = msgdto.MsgTmplMachineFileUploadFail
+				msgEvent.Params["error"] = e.Error()
+				global.EventBus.Publish(ctx, event.EventTopicMsgTmplSend, msgEvent)
+			})
 
 			for _, file := range chunk {
 				fileHeader := file.Fileheader

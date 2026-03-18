@@ -20,8 +20,8 @@ type QueryTableInfoOutput struct {
 }
 
 func GetQueryTableInfo() (tool.InvokableTool, error) {
-	return utils.InferTool("QueryTableInfo",
-		"当需要了解某个表结构时，请调用此工具。使用它来查询数据库表的DDL信息，包括表结构、字段定义、索引等。",
+	return utils.InferTool("DbQueryTableInfo",
+		"【数据库】表结构查询工具 - 获取指定数据表的 DDL 定义，包含字段名、数据类型、约束、索引等完整元数据。适用于编写 SQL 前了解表结构、排查数据问题时查看表定义等场景。",
 		func(ctx context.Context, param *QueryTableInfoParam) (*QueryTableInfoOutput, error) {
 			conn, err := application.GetDbApp().GetDbConn(ctx, param.DbId, param.DbName)
 			if err != nil {

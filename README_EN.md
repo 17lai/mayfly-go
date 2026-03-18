@@ -28,7 +28,7 @@
 
 ## Preface
 
-Web-based **Unified Management and Operation Platform**, integrating comprehensive operation support for Linux systems (including terminal management [terminal playback, command filtering], file management, script execution, process monitoring, and cronjob settings). It also provides data operation, data synchronization, and data migration for multiple databases (such as MySQL, PostgreSQL, Oracle, SQL Server, Dameng, Gauss, SQLite, etc.). Additionally, it supports Redis operations (standalone, sentinel, and cluster modes) and MongoDB、Es management, combined with work order process approval functionality to offer enterprises an all-in-one solution for operations and management.
+Web-based **Unified Management and Operation Platform**, integrating comprehensive operation support for Linux systems (including terminal management [terminal playback, command filtering], file management, script execution, process monitoring, and cronjob settings). It also provides data operation, data synchronization, and data migration for multiple databases (such as MySQL, PostgreSQL, Oracle, SQL Server, Dameng, Gauss, SQLite, etc.). Additionally, it supports Redis operations (standalone, sentinel, and cluster modes) and MongoDB、Es、Kafka management, combined with work order process approval functionality to offer enterprises an all-in-one solution for operations and management.
 
 ## Development languages and major frameworks
 
@@ -58,22 +58,17 @@ account/password：test/test123.
 
 ![文件查看](https://foruda.gitee.com/images/1714378482611638688/7753faf6_1240250.png "屏幕截图")
 
-
 ![sql编辑器](https://foruda.gitee.com/images/1757164386318836686/c3b17a52_1240250.png)
-
 
 ![选表查数据](https://foruda.gitee.com/images/1757164281011401749/5109485f_1240250.png)
 
-
 ![redis操作](https://foruda.gitee.com/images/1757164442298752845/4af1b296_1240250.png)
-
 
 ![mongo操作](https://foruda.gitee.com/images/1714378916425714642/77fc0ed9_1240250.png "屏幕截图")
 
 ![es操作](https://foruda.gitee.com/images/1757164553845346963/b5b70381_1240250.png)
 
 ![容器操作](https://foruda.gitee.com/images/1757164625186816754/2b195e25_1240250.png)
-
 
 #### Work order process approval
 

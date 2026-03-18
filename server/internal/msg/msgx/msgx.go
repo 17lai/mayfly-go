@@ -70,7 +70,7 @@ type MsgSender interface {
 	Send(ctx context.Context, channel *Channel, msg *Msg) error
 }
 
-var messageSenders *collx.SM[ChannelType, MsgSender] = collx.NewSM[ChannelType, MsgSender]()
+var messageSenders collx.SM[ChannelType, MsgSender]
 
 // RegisterMsgSender 注册消息发送器
 func RegisterMsgSender(channel ChannelType, sender MsgSender) {
