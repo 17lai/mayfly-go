@@ -23,6 +23,7 @@ export const ResourceTypeEnum = {
     AuthCert: EnumValue.of(5, 'ac.ac').setExtra({ icon: 'Ticket', iconColor: 'var(--el-color-success)' }),
     Es: EnumValue.of(6, 'tag.es').setExtra({ icon: 'icon es/es-color', iconColor: 'var(--el-color-warning)' }).tagTypeWarning(),
     Container: EnumValue.of(7, 'tag.container').setExtra({ icon: 'icon docker/docker', iconColor: 'var(--el-color-primary)' }),
+    MqKafka: EnumValue.of(8, 'tag.mq.kafka').setExtra({ icon: 'icon mq/kafka', iconColor: 'var(--el-color-primary)' }),
 };
 
 // 标签关联的资源类型
@@ -37,6 +38,8 @@ export const TagResourceTypeEnum = {
     Mongo: ResourceTypeEnum.Mongo,
     AuthCert: ResourceTypeEnum.AuthCert,
     Container: ResourceTypeEnum.Container,
+
+    MqKafka: ResourceTypeEnum.MqKafka,
 
     Db: EnumValue.of(22, '数据库').setExtra({ icon: 'icon db/db' }),
 };

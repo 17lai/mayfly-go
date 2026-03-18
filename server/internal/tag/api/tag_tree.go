@@ -1,6 +1,7 @@
 package api
 
 import (
+	"cmp"
 	"fmt"
 	"mayfly-go/internal/tag/api/form"
 	"mayfly-go/internal/tag/api/vo"
@@ -45,6 +46,9 @@ func (t *TagTree) ReqConfs() *req.Confs {
 
 func (p *TagTree) GetTagTree(rc *req.Ctx) {
 	tagTypesStr := rc.Query("type")
+	flatten := rc.Query("flatten") // 是否展开平铺树
+	flatten = cmp.Or(flatten, "0")
+
 	var typePaths []entity.TypePath
 	if tagTypesStr != "" {
 		typePaths = collx.ArrayMap(strings.Split(tagTypesStr, ","), func(val string) entity.TypePath {
@@ -63,7 +67,15 @@ func (p *TagTree) GetTagTree(rc *req.Ctx) {
 	for _, tag := range allTags {
 		tagTrees = append(tagTrees, tag)
 	}
-	rc.ResData = tagTrees.ToTrees(0)
+
+	var tree []*vo.TagTreeItem
+	if flatten != "0" {
+		tree = tagTrees.ToFlattenTrees(0)
+	} else {
+		tree = tagTrees.ToTrees(0)
+	}
+
+	rc.ResData = tree
 }
 
 // complteTags 补全标签信息，使其能构造为树结构
@@ -163,22 +175,34 @@ func (p *TagTree) CountTagResource(rc *req.Ctx) {
 		CodePathLikes: collx.AsArray(tagPath),
 	}).GetCodePaths()...)
 
+	redisCodes := p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
+		Types:         collx.AsArray(entity.TagTypeRedis),
+		CodePathLikes: collx.AsArray(tagPath),
+	}).GetCodes()
+
+	mongoCodes := p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
+		Types:         collx.AsArray(entity.TagTypeMongo),
+		CodePathLikes: collx.AsArray(tagPath),
+	}).GetCodes()
+
+	containerCodes := p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
+		Types:         collx.AsArray(entity.TagTypeContainer),
+		CodePathLikes: collx.AsArray(tagPath),
+	}).GetCodes()
+
+	kafkaCodes := p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
+		Types:         collx.AsArray(entity.TagTypeMqKafka),
+		CodePathLikes: collx.AsArray(tagPath),
+	}).GetCodes()
+
 	rc.ResData = collx.M{
-		"machine": len(machineCodes),
-		"db":      len(dbCodes),
-		"es":      len(esCodes),
-		"redis": len(p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
-			Types:         collx.AsArray(entity.TagTypeRedis),
-			CodePathLikes: collx.AsArray(tagPath),
-		}).GetCodes()),
-		"mongo": len(p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
-			Types:         collx.AsArray(entity.TagTypeMongo),
-			CodePathLikes: collx.AsArray(tagPath),
-		}).GetCodes()),
-		"container": len(p.tagTreeApp.GetAccountTags(accountId, &entity.TagTreeQuery{
-			Types:         collx.AsArray(entity.TagTypeContainer),
-			CodePathLikes: collx.AsArray(tagPath),
-		}).GetCodes()),
+		"machine":   len(machineCodes),
+		"db":        len(dbCodes),
+		"es":        len(esCodes),
+		"redis":     len(redisCodes),
+		"mongo":     len(mongoCodes),
+		"container": len(containerCodes),
+		"kafka":     len(kafkaCodes),
 	}
 }
 

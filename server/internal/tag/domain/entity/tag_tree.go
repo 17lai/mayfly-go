@@ -37,6 +37,7 @@ const (
 	TagTypeMongo      TagType = TagType(consts.ResourceTypeMongo)
 	TagTypeAuthCert   TagType = TagType(consts.ResourceTypeAuthCert) // 授权凭证类型
 	TagTypeContainer  TagType = TagType(consts.ResourceTypeContainer)
+	TagTypeMqKafka    TagType = TagType(consts.ResourceTypeMqKafka)
 
 	TagTypeDb TagType = 22 // 数据库名
 )

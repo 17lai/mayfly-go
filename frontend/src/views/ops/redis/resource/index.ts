@@ -23,8 +23,6 @@ export const RedisOpComp: ResourceComponentConfig = {
 
 // tagpath 节点类型
 const NodeTypeRedisTag = new NodeType(TagTreeNode.TagPath).withLoadNodesFunc(async (parentNode: TagTreeNode) => {
-    parentNode.ctx?.addResourceComponent(RedisOpComp);
-
     const res = await redisApi.redisList.request({ tagPath: parentNode.params.tagPath });
     if (!res.total) {
         return [];

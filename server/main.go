@@ -12,6 +12,7 @@ import (
 	_ "mayfly-go/internal/flow/init"
 	_ "mayfly-go/internal/machine/init"
 	_ "mayfly-go/internal/mongo/init"
+	_ "mayfly-go/internal/mq/init"
 	_ "mayfly-go/internal/msg/init"
 	"mayfly-go/internal/pkg/config"
 	_ "mayfly-go/internal/redis/init"

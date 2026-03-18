@@ -125,7 +125,7 @@
                             <!-- 行号列 -->
                             <div v-if="column.key == rowNoColumn.key">
                                 <b class="el-text el-text--small">
-                                    {{ rowIndex + 1 }}
+                                    {{ (pageNum - 1) * pageSize + rowIndex + 1 }}
                                 </b>
                             </div>
 
@@ -258,6 +258,14 @@ const props = defineProps({
     height: {
         type: String,
         default: '600px',
+    },
+    pageSize: {
+        type: Number,
+        default: 25,
+    },
+    pageNum: {
+        type: Number,
+        default: 1,
     },
 });
 

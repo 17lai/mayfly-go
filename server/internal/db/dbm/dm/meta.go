@@ -26,20 +26,31 @@ type Meta struct {
 func (dm *Meta) GetSqlDb(ctx context.Context, d *dbi.DbInfo) (*sql.DB, error) {
 	driverName := "dm"
 	db := d.Database
+	schema := ""
 	dbParam := "?escapeProcess=true"
 	if db != "" {
 		// dm database可以使用db/schema表示，方便连接指定schema, 若不存在schema则使用默认schema
 		ss := strings.Split(db, "/")
 		if len(ss) > 1 {
-			dbParam = fmt.Sprintf("%s&schema=\"%s\"", dbParam, ss[len(ss)-1])
+			schema = ss[1]
 		}
 	}
 	if d.Params != "" {
 		dbParam += "&" + d.Params
 	}
+	dsn := fmt.Sprintf("dm://%s:%s@%s:%d%s&appName=mayfly-go", d.Username, url.PathEscape(d.Password), d.Host, d.Port, dbParam)
+	conn, err := sql.Open(driverName, dsn)
+	if err != nil {
+		return nil, err
+	}
+	if schema != "" {
+		_, err := conn.Exec(fmt.Sprintf("SET SCHEMA %s", schema))
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	dsn := fmt.Sprintf("dm://%s:%s@%s:%d%s", d.Username, url.PathEscape(d.Password), d.Host, d.Port, dbParam)
-	return sql.Open(driverName, dsn)
+	return conn, nil
 }
 
 func (dm *Meta) GetDialect(conn *dbi.DbConn) dbi.Dialect {
@@ -52,7 +63,7 @@ func (dm *Meta) GetMetadata(conn *dbi.DbConn) dbi.Metadata {
 	}
 }
 
-func (sm *Meta) GetDbDataTypes() []*dbi.DbDataType {
+func (dm *Meta) GetDbDataTypes() []*dbi.DbDataType {
 	return collx.AsArray[*dbi.DbDataType](CHAR, VARCHAR, TEXT, LONG, LONGVARCHAR, IMAGE, LONGVARBINARY, CLOB,
 		BLOB,
 		NUMERIC, DECIMAL, NUMBER, INTEGER, INT, BIGINT, TINYINT, BYTE, SMALLINT, BIT, DOUBLE, FLOAT,
@@ -63,6 +74,6 @@ func (sm *Meta) GetDbDataTypes() []*dbi.DbDataType {
 	)
 }
 
-func (mm *Meta) GetCommonTypeConverter() dbi.CommonTypeConverter {
+func (dm *Meta) GetCommonTypeConverter() dbi.CommonTypeConverter {
 	return &commonTypeConverter{}
 }

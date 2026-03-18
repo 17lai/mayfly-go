@@ -21,6 +21,10 @@ export default {
         esDataOp: 'Es Operation',
         mongoDataOp: 'Mongo Operation',
         allResource: 'All Resource',
+        mq: {
+            kafka: 'Kafka',
+            kafkaOp: 'Kafka Operation',
+        },
     },
     team: {
         team: 'Team',

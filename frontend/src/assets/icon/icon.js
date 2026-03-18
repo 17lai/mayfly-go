@@ -47,6 +47,7 @@ function convertSvgToSymbol(svgString, symbolId) {
         iconNames.push(`icon ${name}`);
         svgsymbols += convertSvgToSymbol(allSvgIcons[path].default, name);
     }
+
     svgsymbols += '</svg>';
 
     var t = (t = document.getElementsByTagName('script'))[t.length - 1],

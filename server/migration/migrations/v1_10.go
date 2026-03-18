@@ -7,6 +7,7 @@ import (
 	esentity "mayfly-go/internal/es/domain/entity"
 	flowentity "mayfly-go/internal/flow/domain/entity"
 	machineentity "mayfly-go/internal/machine/domain/entity"
+	mqentity "mayfly-go/internal/mq/kafka/domain/entity"
 	msgentity "mayfly-go/internal/msg/domain/entity"
 	sysentity "mayfly-go/internal/sys/domain/entity"
 	"mayfly-go/pkg/model"
@@ -25,6 +26,7 @@ func V1_10() []*gormigrate.Migration {
 	migrations = append(migrations, V1_10_4()...)
 	migrations = append(migrations, V1_10_5()...)
 	migrations = append(migrations, V1_10_6()...)
+	migrations = append(migrations, V1_10_7()...)
 	return migrations
 }
 
@@ -485,6 +487,47 @@ func V1_10_6() []*gormigrate.Migration {
 				tx.Exec("UPDATE t_sys_resource SET pid=1768728951,ui_path='ocdrUNaa/IV13ydwK/Lsew24Kx/',type=2,status=1,name='menu.machineFileConf',code='machine:file',weight=1768729331,meta='null',creator_id=1,creator='admin',modifier_id=1,modifier='admin',create_time='2021-05-31 17:44:37',update_time='2026-01-18 17:44:34',is_deleted=0,delete_time=NULL WHERE id=15")
 				tx.Exec("UPDATE t_sys_resource SET pid=1768728951,ui_path='ocdrUNaa/IV13ydwK/LIEwix43/',type=2,status=1,name='menu.machineKillprocess',code='machine:killprocess',weight=0,meta='null',creator_id=1,creator='admin',modifier_id=1,modifier='admin',create_time='2021-08-17 11:20:37',update_time='2026-01-18 17:41:40',is_deleted=0,delete_time=NULL WHERE id=72")
 				tx.Exec("UPDATE t_sys_resource SET pid=1768728951,ui_path='ocdrUNaa/IV13ydwK/Alw1Xkq3/',type=2,status=1,name='menu.machineTerminal',code='machine:terminal',weight=1,meta='null',creator_id=1,creator='admin',modifier_id=1,modifier='admin',create_time='2021-05-28 14:06:02',update_time='2026-01-18 17:41:26',is_deleted=0,delete_time=NULL WHERE id=12")
+				return nil
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return nil
+			},
+		},
+	}
+}
+
+func V1_10_7() []*gormigrate.Migration {
+	return []*gormigrate.Migration{
+		{
+			ID: "20260313-v1.10.7",
+
+			Migrate: func(tx *gorm.DB) error {
+				tx.AutoMigrate(&mqentity.Kafka{})
+
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773796612, 1773796555, 2, 1, 'kafka', 'res:mq:kafka', 1773796612, 'null', 12, 'admin', 12, 'admin', '2026-03-18 09:16:53', '2026-03-18 09:16:53', 'UX7Sa6oG/cC4TRerV/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773796555, 94, 2, 1, 'MQ', 'res:mq', 1773796555, 'null', 12, 'admin', 12, 'admin', '2026-03-18 09:15:55', '2026-03-18 09:16:34', 'UX7Sa6oG/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773714634, 1773365877, 2, 1, 'group delete', 'kafka:group:delete', 1773714634, 'null', 12, 'admin', 12, 'admin', '2026-03-17 10:30:35', '2026-03-17 10:30:35', 'ocdrUNaa/6f6tY0WZ/nDZWgbDn/QvLeQGrM/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773647239, 1773365877, 2, 1, 'topic consume', 'kafka:topic:consume', 1773647239, 'null', 12, 'admin', 12, 'admin', '2026-03-16 15:47:20', '2026-03-16 15:47:20', 'ocdrUNaa/6f6tY0WZ/nDZWgbDn/xgP900Sy/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773647223, 1773365877, 2, 1, 'topic produce', 'kafka:topic:produce', 1773647223, 'null', 12, 'admin', 12, 'admin', '2026-03-16 15:47:04', '2026-03-16 15:47:04', 'ocdrUNaa/6f6tY0WZ/nDZWgbDn/dPHcNo2n/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773647053, 1773365877, 2, 1, 'topic delete', 'kafka:topic:delete', 1773647053, 'null', 12, 'admin', 12, 'admin', '2026-03-16 15:44:13', '2026-03-16 15:44:13', 'ocdrUNaa/6f6tY0WZ/nDZWgbDn/nzD93hsk/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773647032, 1773365877, 2, 1, 'topic create', 'kafka:topic:create', 1773647032, 'null', 12, 'admin', 12, 'admin', '2026-03-16 15:43:53', '2026-03-16 15:43:53', 'ocdrUNaa/6f6tY0WZ/nDZWgbDn/7ZtYUWEn/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773365930, 1773796612, 2, 1, 'kafka-删除', 'mq:kafka:del', 0, 'null', 12, 'admin', 12, 'admin', '2026-03-13 09:38:50', '2026-03-18 09:17:39', 'UX7Sa6oG/cC4TRerV/qdaX1R6b/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773365913, 1773796612, 2, 1, 'kafka-保存', 'mq:kafka:save', 1, 'null', 12, 'admin', 12, 'admin', '2026-03-13 09:38:33', '2026-03-18 09:17:34', 'UX7Sa6oG/cC4TRerV/xaL2Zi9m/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773365877, 1773365853, 2, 1, 'mq:kafka', 'mq:kafka:base', 1773365877, 'null', 12, 'admin', 12, 'admin', '2026-03-13 09:37:57', '2026-03-13 09:37:57', 'ocdrUNaa/6f6tY0WZ/nDZWgbDn/', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_resource` (`id`, `pid`, `type`, `status`, `name`, `code`, `weight`, `meta`, `creator_id`, `creator`, `modifier_id`, `modifier`, `create_time`, `update_time`, `ui_path`, `is_deleted`, `delete_time`) VALUES (1773365853, 1756122788, 2, 1, 'MQ', 'mq:base', 1773365853, 'null', 12, 'admin', 12, 'admin', '2026-03-13 09:37:33', '2026-03-13 09:37:42', 'ocdrUNaa/6f6tY0WZ/', 0, NULL)")
+
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773365853, 12, 'admin', '2026-03-13 09:45:24', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773365877, 12, 'admin', '2026-03-13 09:45:24', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773365913, 12, 'admin', '2026-03-13 09:45:24', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773365930, 12, 'admin', '2026-03-13 09:45:24', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773647032, 12, 'admin', '2026-03-16 15:47:27', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773647053, 12, 'admin', '2026-03-16 15:47:27', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773647239, 12, 'admin', '2026-03-16 15:47:27', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773647223, 12, 'admin', '2026-03-16 15:47:27', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773714634, 12, 'admin', '2026-03-17 10:31:00', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773796555, 12, 'admin', '2026-03-18 09:18:09', 0, NULL)")
+				tx.Exec("INSERT INTO `t_sys_role_resource` (`role_id`, `resource_id`, `creator_id`, `creator`, `create_time`, `is_deleted`, `delete_time`) VALUES (1, 1773796612, 12, 'admin', '2026-03-18 09:18:09', 0, NULL)")
+
 				return nil
 			},
 			Rollback: func(tx *gorm.DB) error {

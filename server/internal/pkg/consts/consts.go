@@ -10,6 +10,7 @@ const (
 	ResourceTypeAuthCert   int8 = 5
 	ResourceTypeEsInstance int8 = 6
 	ResourceTypeContainer  int8 = 7
+	ResourceTypeMqKafka    int8 = 8
 
 	// imsg起始编号
 	ImsgNumSys     = 10000
@@ -23,4 +24,5 @@ const (
 	ImsgNumMsg     = 90000
 	ImsgNumEs      = 100000
 	ImsgNumDocker  = 110000
+	ImsgNumMqKafka = 120000
 )

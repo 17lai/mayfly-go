@@ -371,6 +371,7 @@ const onResizeOpPanel = () => {
 const loadTags = async () => {
     const tags = await tagApi.getTagTrees.request({
         type: getResourceTypes().join(','),
+        flatten: '1',
     });
     const tagNodes = [];
     for (let tag of tags) {
@@ -381,7 +382,7 @@ const loadTags = async () => {
 };
 
 const processTagNode = (tag: any): TagTreeNode => {
-    const tagNode = new TagTreeNode(tag.codePath, tag.name, tag.type);
+    const tagNode = new TagTreeNode(tag.codePath, tag.namePath, tag.type);
 
     if (!tag.children || !Array.isArray(tag.children) || tag.children.length == 0) {
         return tagNode;

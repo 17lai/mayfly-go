@@ -49,6 +49,7 @@ export default {
         reset: 'Reset',
         success: 'Success',
         fail: 'Fail',
+        requestFail: 'Request Fail',
         previousStep: 'Previous Step',
         nextStep: 'Next Step',
         copy: 'Copy',

@@ -24,6 +24,10 @@ export default {
         mongoDataOp: 'Mongo操作',
         containerOp: '容器操作',
         allResource: '所有资源',
+        mq: {
+            kafka: 'Kafka',
+            kafkaOp: 'Kafka操作',
+        },
     },
     team: {
         team: '团队',

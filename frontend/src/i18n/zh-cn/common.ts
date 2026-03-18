@@ -49,6 +49,7 @@ export default {
         reset: '重置',
         success: '成功',
         fail: '失败',
+        requestFail: '请求失败',
         previousStep: '上一步',
         nextStep: '下一步',
         copy: '复制',

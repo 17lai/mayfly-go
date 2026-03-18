@@ -232,7 +232,7 @@
                             </template>
                         </el-table-column>
 
-                        <el-table-column min-width="35">
+                        <el-table-column min-width="40">
                             <template #default="scope">
                                 <el-button class="mt-1" link type="primary" @click="handleDevicesDelete(scope.$index)">
                                     {{ $t('common.delete') }}

@@ -140,6 +140,8 @@
             :columns="columns"
             :loading="loading"
             :height="tableHeight"
+            :page-size="pageSize"
+            :page-num="pageNum"
             :show-column-tip="true"
             @sort-change="(sort: any) => onTableSortChange(sort)"
             @selection-change="onDataSelectionChange"
